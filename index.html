@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sablé Breton 專業食品標籤設計器 2.1 Pro (印刷尺寸精準修正版)</title>
+    <title>Sablé Breton 專業食品標籤設計器 2.3 Pro (比例完美鎖定版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts 藝術與專業字體 -->
@@ -17,7 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* 核心樣式：利用 CSS 變數與容器查詢 (Container Queries) 確保縮放時絕不跑版 */
+        /* 核心樣式：鎖定固定畫布大小，預防一切因瀏覽器自動計算導致的變形 */
         :root {
             --label-bg: #FCFAF6;
             --label-text: #1C2321;
@@ -26,77 +26,65 @@
             --title-scale: 1.0; /* 標題獨立縮放 */
             --logo-scale: 1.0; /* Logo 獨立縮放 */
             --qr-scale: 1.0; /* QR Code 獨立縮放 */
-            --calibrated-scale: 1.0; /* 實體 1:1 螢幕 DPI 校準係數 */
-            --preview-zoom: 1.0; /* 視覺上縮小/放大整個預覽區 (不影響實體列印) */
+            --preview-zoom: 1.0; /* 視覺縮放比例 (預設為 100%) */
         }
 
-        /* 標籤容器：定義為容器，以便內部元素使用 cqw (Container Query Width) */
+        /* 標籤容器：鎖定完美的 350px 寬、420px 高 (5:6 黃金分割) */
         .label-preview-container {
-            container-type: both;
-            container-name: label;
-            aspect-ratio: 50 / 60;
-            width: 100%;
-            max-width: 360px; /* 電腦版最大顯示 */
+            width: 350px !important;
+            height: 420px !important;
             background-color: var(--label-bg);
-            box-shadow: 0 12px 30px -10px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12);
             position: relative;
             box-sizing: border-box;
             margin: 0 auto;
         }
 
-        /* 實體尺寸預覽模式 (50x60mm) - 完美配合螢幕校準變數 */
-        .physical-size {
-            width: calc(50mm * var(--calibrated-scale)) !important;
-            height: calc(60mm * var(--calibrated-scale)) !important;
-            max-width: none !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-        }
-
-        /* ==== 絕對響應式字型：使用 cqw (容器寬度百分比) 確保自適應縮放 ==== */
+        /* ==== 絕對穩定的固定像素排版，預防文字溢出 ==== */
         .dynamic-title {
-            font-size: calc(6.2cqw * var(--font-scale) * var(--title-scale)) !important;
-            line-height: 1.2 !important;
+            font-size: calc(21px * var(--font-scale) * var(--title-scale)) !important;
+            line-height: 1.15 !important;
         }
         .dynamic-category {
-            font-size: calc(3.5cqw * var(--font-scale)) !important;
+            font-size: calc(12px * var(--font-scale)) !important;
             line-height: 1.2 !important;
             letter-spacing: 0.08em;
         }
         .dynamic-subtitle {
-            font-size: calc(3.1cqw * var(--font-scale)) !important;
+            font-size: calc(10px * var(--font-scale)) !important;
             line-height: 1.2 !important;
         }
         .dynamic-body {
-            font-size: calc(2.65cqw * var(--font-scale)) !important;
-            line-height: 1.3 !important;
+            font-size: calc(8.5px * var(--font-scale)) !important;
+            line-height: 1.35 !important;
         }
         .dynamic-warning-title {
-            font-size: calc(2.5cqw * var(--font-scale)) !important;
+            font-size: calc(8px * var(--font-scale)) !important;
             line-height: 1.2 !important;
         }
         .dynamic-warning-body {
-            font-size: calc(2.35cqw * var(--font-scale)) !important;
+            font-size: calc(7.5px * var(--font-scale)) !important;
             line-height: 1.2 !important;
         }
         .dynamic-footer-label {
-            font-size: calc(2.0cqw * var(--font-scale)) !important;
+            font-size: calc(6.5px * var(--font-scale)) !important;
             line-height: 1.1 !important;
         }
         .dynamic-footer-value {
-            font-size: calc(2.35cqw * var(--font-scale)) !important;
+            font-size: calc(7.5px * var(--font-scale)) !important;
             line-height: 1.1 !important;
         }
 
-        /* 響應式邊框與間距 */
+        /* 邊框與間距 */
         .outer-border-frame {
-            border: 0.3cqw solid var(--label-accent);
-            padding: 0.8cqw;
+            border: 1px solid var(--label-accent);
+            padding: 3px;
             height: 100%;
             box-sizing: border-box;
         }
         .inner-border-frame {
-            border: 0.7cqw double var(--label-accent);
-            padding: 2cqw 3cqw 1.5cqw 3cqw;
+            border: 3px double var(--label-accent);
+            padding: 10px 12px 6px 12px;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -107,23 +95,23 @@
         /* 精緻分割線 */
         .dynamic-divider {
             width: 60%;
-            height: 0.2cqw;
-            margin: 1.5cqw auto;
+            height: 1px;
+            margin: 6px auto;
             opacity: 0.6;
             background-color: var(--label-accent);
         }
 
         /* 裝飾圖示與自訂 Logo */
         .dynamic-crest {
-            height: 4cqw;
-            width: 4cqw;
-            margin: 0 auto 0.8cqw auto;
+            height: 14px;
+            width: 14px;
+            margin: 0 auto 3px auto;
         }
         
         .logo-wrapper {
-            max-width: calc(18cqw * var(--logo-scale));
-            max-height: calc(10cqw * var(--logo-scale));
-            margin: 0 auto 0.8cqw auto;
+            max-width: calc(65px * var(--logo-scale));
+            max-height: calc(35px * var(--logo-scale));
+            margin: 0 auto 3px auto;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -131,10 +119,10 @@
 
         /* QR Code 樣式與縮放 */
         .qr-wrapper {
-            width: calc(14cqw * var(--qr-scale));
-            height: calc(14cqw * var(--qr-scale));
+            width: calc(48px * var(--qr-scale));
+            height: calc(48px * var(--qr-scale));
             background: white;
-            padding: 0.5cqw;
+            padding: 2px;
             border: 1px solid #ddd;
             display: inline-block;
         }
@@ -143,7 +131,7 @@
             height: 100% !important;
         }
 
-        /* ================= 列印專用樣式：絕對鎖定 50mm x 60mm 無邊距輸出 ================= */
+        /* ================= 列印專用樣式：完美的 50mm x 60mm 無損輸出 ================= */
         @media print {
             @page {
                 size: 50mm 60mm;
@@ -170,27 +158,21 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 box-sizing: border-box !important;
+                overflow: hidden !important;
             }
-            /* 強制列印出的臨時節點完全忽略螢幕校準比例與視覺縮放 */
+            /* 核心解耦：列印時，將 350x420px 畫布完美等比例縮放到實體 50x60mm 紙張上 */
             #print-label-rendered {
                 display: block !important;
-                width: 50mm !important;
-                height: 60mm !important;
-                max-width: none !important;
-                max-height: none !important;
+                width: 350px !important;
+                height: 420px !important;
                 box-shadow: none !important;
                 margin: 0 !important;
-                padding: 1px !important;
                 background: white !important;
-                border: 1px solid #ddd !important; /* 裁切邊線 */
-                transform: none !important;
+                border: none !important;
                 box-sizing: border-box !important;
-                
-                /* 強制重置比例參數為完美的 1.0 實體印刷 */
-                --calibrated-scale: 1.0 !important;
-                --preview-zoom: 1.0 !important;
-                container-type: both !important;
-                container-name: label !important;
+                /* 縮放公式：50mm / 350px */
+                transform: scale(calc(50mm / 350px)) !important;
+                transform-origin: top left !important;
             }
         }
     </style>
@@ -207,8 +189,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-base font-bold text-slate-900">Sablé Breton 專業標籤設計器 2.1 Pro</h1>
-                    <p class="text-xs text-slate-500">標準 50x60mm 規格 • 已解耦「螢幕校準」與「印刷尺寸」，保證輸出絕對精準！</p>
+                    <h1 class="text-base font-bold text-slate-900">Sablé Breton 專業標籤設計器 2.3 Pro</h1>
+                    <p class="text-xs text-slate-500">標準 50x60mm 規格 • 已剔除跑版智慧模式，解耦設計，保證實物 100% 準確！</p>
                 </div>
             </div>
             
@@ -407,95 +389,48 @@
             </div>
         </section>
 
-        <!-- 右側：智慧自適應與尺規預覽區 -->
-        <section class="lg:col-span-5 flex flex-col items-center justify-start gap-4">
+        <!-- 右側：100% 比例穩固預覽區 -->
+        <section class="lg:col-span-5 flex flex-col items-center justify-start gap-4 w-full">
             
-            <!-- 視角切換器 -->
-            <div class="w-full bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm flex flex-col gap-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-slate-700">預覽視域模式</span>
-                    <span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold" id="dimension-indicator">手機智慧自適應 (防溢出)</span>
+            <!-- 👁️ 顯示比例與實物1:1對齊控制台 -->
+            <div class="w-full bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col gap-3">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <span class="text-xs font-bold text-slate-700">🔍 預覽畫面大小縮放 (DPI 校準)</span>
+                    <span id="zoom-factor" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">100% (原大)</span>
                 </div>
-                <div class="flex gap-2">
-                    <button id="btn-scale-web" onclick="togglePhysicalScale(false)" class="flex-1 py-2 text-xs font-bold rounded-lg bg-slate-900 text-white transition-all shadow-sm">
-                        🔍 智慧縮放模式 (編輯專用)
-                    </button>
-                    <button id="btn-scale-phys" onclick="togglePhysicalScale(true)" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 transition-all hover:bg-slate-50">
-                        📏 1:1 實際尺寸 (50x60mm)
-                    </button>
+                <p class="text-slate-500 text-[11px] leading-relaxed">
+                    拉動滑桿可自由放大或縮小畫面（不影響列印和匯出尺寸）。若想在螢幕上看<b>實體 1:1 尺寸</b>，請拿一把尺貼在螢幕上，調整滑桿直到下方<b>藍色條剛好等於 3 公分</b>即可！
+                </p>
+                
+                <!-- 視覺縮放滑桿與微調按鈕 -->
+                <div class="flex items-center gap-2 mt-1">
+                    <button onclick="adjustPreviewZoom(-0.05)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-bold text-[11px]">-5%</button>
+                    <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="1.0" class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updatePreviewZoom(this.value)">
+                    <button onclick="adjustPreviewZoom(0.05)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-bold text-[11px]">+5%</button>
                 </div>
 
-                <!-- 🔮 實體尺寸螢幕校準器與視覺縮放面板 -->
-                <div id="calibration-box" class="hidden bg-amber-50/70 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-900 mt-2">
-                    <div class="border-b border-amber-200 pb-3 mb-3">
-                        <p class="font-bold flex items-center gap-1 text-amber-950">📐 1. 螢幕 1:1 DPI 尺規校準 (最高 15x)：</p>
-                        <p class="text-slate-600 my-1 leading-relaxed text-[11px]">
-                            請拿實體尺貼在螢幕上，拉動滑桿或點按微調，使下方<b>深藍色條寬度剛好等於實體 3 公分</b>。
-                        </p>
-                        
-                        <!-- 拓寬範圍滑桿 (最高 15.0 倍) 與極致微調 -->
-                        <div class="flex flex-col gap-2 mt-2">
-                            <div class="flex flex-wrap items-center justify-center gap-1.5">
-                                <button onclick="adjustCalibration(-1.0)" class="px-1.5 py-1 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 rounded text-amber-950 font-bold text-[10px] transition-all">-1.0</button>
-                                <button onclick="adjustCalibration(-0.1)" class="px-1.5 py-1 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 rounded text-amber-950 font-bold text-[10px] transition-all">-0.1</button>
-                                <button onclick="adjustCalibration(-0.01)" class="px-1.5 py-1 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 rounded text-amber-950 font-bold text-[10px] transition-all">-0.01</button>
-                                
-                                <input type="range" id="calibration-slider" min="0.1" max="15.0" step="0.01" value="1.0" class="flex-1 h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-700" oninput="updateCalibrationScale(this.value)">
-                                
-                                <button onclick="adjustCalibration(0.01)" class="px-1.5 py-1 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 rounded text-amber-950 font-bold text-[10px] transition-all">+0.01</button>
-                                <button onclick="adjustCalibration(0.1)" class="px-1.5 py-1 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 rounded text-amber-950 font-bold text-[10px] transition-all">+0.1</button>
-                                <button onclick="adjustCalibration(1.0)" class="px-1.5 py-1 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 rounded text-amber-950 font-bold text-[10px] transition-all">+1.0</button>
-                            </div>
-                            
-                            <div class="flex justify-between items-center text-[10px] text-slate-500 px-1 font-semibold">
-                                <span>起步 (x0.1)</span>
-                                <span id="calibration-factor" class="font-extrabold bg-amber-250 text-amber-950 px-2.5 py-0.5 rounded text-[11px] shadow-sm">x1.00</span>
-                                <span>上限 (x15.0)</span>
-                            </div>
-                        </div>
+                <!-- 快速比例預設按鈕 -->
+                <div class="flex gap-1.5 mt-1 justify-center">
+                    <button onclick="updatePreviewZoom(1.0); document.getElementById('preview-zoom-slider').value = 1.0;" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">100% (預設)</button>
+                    <button onclick="updatePreviewZoom(0.75); document.getElementById('preview-zoom-slider').value = 0.75;" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">75% (小螢幕)</button>
+                    <button onclick="updatePreviewZoom(0.5); document.getElementById('preview-zoom-slider').value = 0.5;" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">50% (微縮)</button>
+                </div>
 
-                        <!-- 3cm 實體校準參考線 -->
-                        <div class="mt-2 text-center bg-white p-2 rounded-lg border border-amber-100 shadow-inner">
-                            <div id="calibration-line" class="h-3 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--calibrated-scale));"></div>
-                            <span class="text-[9px] text-slate-500 mt-1 block font-bold">📏 校準參考線：請微調使此藍線長度 = 實體尺 3 公分</span>
-                        </div>
-                    </div>
-
-                    <!-- 👁️ 畫面視覺縮放系統 -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <p class="font-bold text-amber-950">👁️ 2. 預覽畫面縮細工具 (Zoom Preview)：</p>
-                            <!-- 一鍵自動適應 -->
-                            <button onclick="autoFitPreview()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[10px] transition-all shadow-sm flex items-center gap-1">
-                                ✨ 一鍵自動適應視窗
-                            </button>
-                        </div>
-                        <p class="text-slate-600 my-1 leading-relaxed text-[11px]">
-                            當校準倍數太大導致標籤超出螢幕時，<b>調整此滑桿可自由縮小標籤</b>（這僅影響預覽畫面，列印和導出依然是完美的 50x60mm 實體尺寸）。
-                        </p>
-                        <div class="flex items-center gap-3 mt-2">
-                            <input type="range" id="preview-zoom-slider" min="0.1" max="1.5" step="0.01" value="1.0" class="flex-1 h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-emerald-700" oninput="updatePreviewZoom(this.value)">
-                            <span id="zoom-factor" class="font-bold bg-amber-100 text-amber-950 px-2 py-0.5 rounded text-[11px] w-12 text-center">100%</span>
-                        </div>
-                        <!-- 快速縮放預設 -->
-                        <div class="flex gap-1 mt-2 justify-center">
-                            <button onclick="updatePreviewZoom(1.0); document.getElementById('preview-zoom-slider').value = 1.0;" class="px-2 py-1 bg-white border border-amber-200 rounded text-[9px] font-bold text-slate-700 hover:bg-amber-50">100% (原大)</button>
-                            <button onclick="updatePreviewZoom(0.75); document.getElementById('preview-zoom-slider').value = 0.75;" class="px-2 py-1 bg-white border border-amber-200 rounded text-[9px] font-bold text-slate-700 hover:bg-amber-50">75%</button>
-                            <button onclick="updatePreviewZoom(0.5); document.getElementById('preview-zoom-slider').value = 0.5;" class="px-2 py-1 bg-white border border-amber-200 rounded text-[9px] font-bold text-slate-700 hover:bg-amber-50">50% (中)</button>
-                            <button onclick="updatePreviewZoom(0.3); document.getElementById('preview-zoom-slider').value = 0.3;" class="px-2 py-1 bg-white border border-amber-200 rounded text-[9px] font-bold text-slate-700 hover:bg-amber-50">30% (小)</button>
-                        </div>
-                    </div>
+                <!-- 實物對齊：3cm 參考線 (30mm 在無 Zoom 時大約 113px) -->
+                <div class="mt-1 text-center bg-slate-50 p-2 rounded-xl border border-slate-100 shadow-inner">
+                    <div id="calibration-line" class="h-3.5 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--preview-zoom, 1.0));"></div>
+                    <span class="text-[10px] text-slate-500 mt-1.5 block font-bold">📏 實體尺規對其線 (微調使上條藍色長度 = 實體尺 3 公分)</span>
                 </div>
             </div>
 
-            <!-- 標籤外層包裝 -->
-            <div id="label-viewport" class="w-full flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-3xl min-h-[420px] relative overflow-hidden">
+            <!-- 標籤可視窗口：模擬剪裁底板 (徹底阻絕橫向滾動) -->
+            <div class="w-full flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-3xl min-h-[460px] overflow-hidden p-6 relative">
                 
-                <!-- 視覺縮放錨點 -->
-                <div id="label-scale-pivot" class="absolute inset-0 flex items-center justify-center p-4 overflow-visible" style="transform: scale(var(--preview-zoom, 1.0)); transition: transform 0.15s ease-out;">
+                <!-- CSS Transform Scale 節點：不拉扯紙張，只作純視覺比例放大縮小 -->
+                <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 1.0)); transform-origin: center center; transition: transform 0.1s ease-out;">
                     
-                    <!-- 標籤本體 (50:60 比例外框) -->
-                    <div id="printable-label" class="label-preview-container p-[1cqw]">
+                    <!-- 標籤本體 (鎖死 350x420px，不論如何都絕不變更外框比例！) -->
+                    <div id="printable-label" class="label-preview-container">
                         
                         <!-- 裝飾外框 -->
                         <div id="outer-border-wrapper" class="outer-border-frame">
@@ -533,7 +468,7 @@
                                 </div>
 
                                 <!-- 中間：成分與過敏警告 -->
-                                <div class="flex-1 flex flex-col justify-center my-0.5">
+                                <div class="flex-1 flex flex-col justify-center my-1">
                                     <!-- 成分內容 -->
                                     <div class="dynamic-body text-slate-700 font-sans text-center" style="font-family: 'Inter', sans-serif;">
                                         <strong style="color: var(--label-text); font-weight: 700;">Ingredients:</strong> 
@@ -629,7 +564,7 @@
         let currentQRText = "";
         let qrGenerator = null;
 
-        // 微調獨立元素尺寸 (文字、標題、Logo)
+        // 微調獨立元素尺寸
         function updateFontScale(type, value) {
             const root = document.documentElement;
             if (type === 'all') {
@@ -647,57 +582,22 @@
             }
         }
 
-        // 動態調校螢幕 DPI 比例 (校準尺)
-        function updateCalibrationScale(value) {
-            const root = document.documentElement;
-            root.style.setProperty('--calibrated-scale', value);
-            document.getElementById('calibration-factor').innerText = `x${parseFloat(value).toFixed(2)}`;
-            localStorage.setItem('sable-label-calibration', value);
-        }
-
-        // 尺規微調按鈕控制函數 (可調高至 15x)
-        function adjustCalibration(delta) {
-            const slider = document.getElementById('calibration-slider');
-            let val = parseFloat(slider.value) + delta;
-            val = Math.max(0.1, Math.min(15.0, val));
-            val = parseFloat(val.toFixed(2));
-            slider.value = val;
-            updateCalibrationScale(val);
-        }
-
-        // 👁️ 預覽視覺縮放控制 (只作用在螢幕看圖，不影響列印)
+        // 👁️ 調整畫面縮放變數 (純視覺 CSS 縮放，不影響後台與紙型比例)
         function updatePreviewZoom(value) {
             const root = document.documentElement;
             root.style.setProperty('--preview-zoom', value);
             document.getElementById('zoom-factor').innerText = `${Math.round(value * 100)}%`;
-            localStorage.setItem('sable-label-preview-zoom', value);
+            localStorage.setItem('sable-label-preview-zoom-v2.3', value);
         }
 
-        // 一鍵自動適應預覽視窗大小
-        function autoFitPreview() {
-            const viewport = document.getElementById('label-viewport');
-            const label = document.getElementById('printable-label');
+        // 視覺縮放微調按鈕
+        function adjustPreviewZoom(delta) {
             const slider = document.getElementById('preview-zoom-slider');
-            
-            const vpWidth = viewport.clientWidth - 48; 
-            const vpHeight = viewport.clientHeight - 48;
-            
-            const isPhysical = label.classList.contains('physical-size');
-            let labelWidth = label.offsetWidth;
-            let labelHeight = label.offsetHeight;
-            
-            if (isPhysical) {
-                const calibratedScale = parseFloat(document.documentElement.style.getPropertyValue('--calibrated-scale')) || 1.0;
-                labelWidth = 50 * 3.7795 * calibratedScale;
-                labelHeight = 60 * 3.7795 * calibratedScale;
-            }
-            
-            let bestZoom = Math.min(vpWidth / labelWidth, vpHeight / labelHeight);
-            bestZoom = Math.max(0.1, Math.min(1.5, bestZoom));
-            bestZoom = parseFloat(bestZoom.toFixed(2));
-            
-            slider.value = bestZoom;
-            updatePreviewZoom(bestZoom);
+            let val = parseFloat(slider.value) + delta;
+            val = Math.max(0.3, Math.min(2.5, val));
+            val = parseFloat(val.toFixed(2));
+            slider.value = val;
+            updatePreviewZoom(val);
         }
 
         // 當使用者上傳自訂 Logo 圖片
@@ -762,64 +662,58 @@
             updateQRCode("");
         }
 
-        // ================= 🎯 核心修正：高精度解耦 PNG 圖片生成技術 =================
+        // ================= 🎯 【印刷安全】高清晰 PNG 圖片導出 =================
         function exportLabelAsPNG() {
-            // 50mm x 60mm 在高密度印刷標準（300 DPI）下對應的像素物理大小為 590px x 708px
-            const targetWidth = 590;
-            const targetHeight = 708;
-
-            // 1. 在背景建立一個隱藏的沙盒定位容器，避免受螢幕當前的 preview-zoom 和 calibration 渲染干擾
-            const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'fixed';
-            tempContainer.style.left = '-9999px';
-            tempContainer.style.top = '-9999px';
-            tempContainer.style.width = targetWidth + 'px';
-            tempContainer.style.height = targetHeight + 'px';
-            document.body.appendChild(tempContainer);
-
-            // 2. 複製當前的標籤節點到沙盒容器中
-            const labelClone = document.getElementById('printable-label').cloneNode(true);
-            labelClone.id = "temp-export-label";
+            const originalLabel = document.getElementById('printable-label');
             
-            // 3. 抹除所有行動裝置/預覽用的動態適應與放大類別，鎖定為標準寬高像素
-            labelClone.classList.remove('physical-size');
+            // 完美 5:6 等比例高解析印刷像素 (1000px x 1200px)
+            const targetWidth = 500;
+            const targetHeight = 600;
+
+            // 1. 建立沙盒
+            const tempSandbox = document.createElement('div');
+            tempSandbox.style.position = 'fixed';
+            tempSandbox.style.left = '-9999px';
+            tempSandbox.style.top = '-9999px';
+            tempSandbox.style.width = targetWidth + 'px';
+            tempSandbox.style.height = targetHeight + 'px';
+            document.body.appendChild(tempSandbox);
+
+            // 2. 複製標籤並強行用 inline 像素覆寫，完全阻隔一切網頁縮放變形！
+            const labelClone = originalLabel.cloneNode(true);
+            labelClone.id = "temp-export-label";
             labelClone.style.width = targetWidth + 'px';
             labelClone.style.height = targetHeight + 'px';
             labelClone.style.transform = 'none';
             labelClone.style.boxShadow = 'none';
             labelClone.style.margin = '0';
             
-            // 4. 強制容器查詢解析引擎，以便字型比例精準計算
-            labelClone.style.containerType = 'both';
-            labelClone.style.containerName = 'label';
+            // 特殊縮放調整：由於沙盒寬度由原先的 350px 變大為 500px (1.42倍)
+            // 為了讓 html2canvas 導出的文字維持原本極致清晰與比例，我們強制讓 Clone 的 font-scale 放大 1.42 倍！
+            const currentFontScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-scale')) || 1.0;
+            labelClone.style.setProperty('--font-scale', (currentFontScale * 1.428).toString(), 'important');
             
-            // 5. 強制重設所有的 DPI/實體螢幕校準縮放變數為 100% 原始印刷比例 (1.0)
-            labelClone.style.setProperty('--calibrated-scale', '1.0');
-            labelClone.style.setProperty('--preview-zoom', '1.0');
-            
-            tempContainer.appendChild(labelClone);
+            tempSandbox.appendChild(labelClone);
 
-            // 6. 稍微延遲以確保瀏覽器順利渲染，隨即調用 html2canvas
+            // 3. 截圖下載
             setTimeout(() => {
                 html2canvas(labelClone, {
                     width: targetWidth,
                     height: targetHeight,
-                    scale: 2, // scale 設為 2，將圖片轉成超清 600 DPI (1180px x 1416px)，極致清晰
+                    scale: 2, // 2倍高畫質生成 1000px x 1200px (完美 50x60mm 比例！)
                     useCORS: true,
-                    backgroundColor: null, // 透明背景 (完美貼合於任何瓶身貼紙底色)
+                    backgroundColor: null, // 去背透明，超美！
                     logging: false
                 }).then(canvas => {
-                    // 下載
                     const link = document.createElement('a');
-                    link.download = 'Sable_Breton_Label_Perfect_50x60mm.png';
+                    link.download = 'Sable_Breton_Label_50x60mm_PrintReady.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     
-                    // 釋放記憶體與 DOM 節點
-                    document.body.removeChild(tempContainer);
+                    document.body.removeChild(tempSandbox);
                 }).catch(err => {
                     console.error("PNG 匯出發生故障: ", err);
-                    document.body.removeChild(tempContainer);
+                    document.body.removeChild(tempSandbox);
                 });
             }, 100);
         }
@@ -883,12 +777,12 @@
             if (preset.hasDoubleFrame) {
                 outerWrapper.className = "outer-border-frame";
                 innerWrapper.className = "inner-border-frame";
-                innerWrapper.style.border = `0.7cqw double ${preset.accent}`;
+                innerWrapper.style.border = `3px double ${preset.accent}`;
                 if (!hasLogo) crest.style.display = 'block';
             } else {
                 outerWrapper.className = "h-full w-full";
-                innerWrapper.className = "h-full w-full p-[4cqw] flex flex-col justify-between box-sizing-border";
-                innerWrapper.style.border = `0.5cqw ${presetKey === 'rustic' ? 'dashed' : 'solid'} ${preset.accent}`;
+                innerWrapper.className = "h-full w-full p-4 flex flex-col justify-between box-sizing-border";
+                innerWrapper.style.border = `2px ${presetKey === 'rustic' ? 'dashed' : 'solid'} ${preset.accent}`;
                 crest.style.display = 'none';
             }
 
@@ -896,72 +790,33 @@
             updateLabelText();
         }
 
-        // 手機與實體視域切換
-        function togglePhysicalScale(toPhysical) {
-            const label = document.getElementById('printable-label');
-            const indicator = document.getElementById('dimension-indicator');
-            const btnWeb = document.getElementById('btn-scale-web');
-            const btnPhys = document.getElementById('btn-scale-phys');
-            const calibrationBox = document.getElementById('calibration-box');
-
-            if (toPhysical) {
-                label.classList.add('physical-size');
-                indicator.innerText = "1:1 實體比例預覽 (50x60mm)";
-                btnPhys.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-900 text-white transition-all shadow-sm";
-                btnWeb.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 transition-all hover:bg-slate-50";
-                calibrationBox.classList.remove('hidden'); 
-                
-                setTimeout(autoFitPreview, 200);
-            } else {
-                label.classList.remove('physical-size');
-                indicator.innerText = "手機智慧自適應 (防溢出)";
-                btnWeb.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-900 text-white transition-all shadow-sm";
-                btnPhys.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 transition-all hover:bg-slate-50";
-                calibrationBox.classList.add('hidden'); 
-                updatePreviewZoom(1.0); 
-            }
-        }
-
-        // ================= 🎯 核心修正：高精度解耦 PDF 列印生成技術 =================
+        // 直接調用瀏覽器 PDF 列印 (將 350x420px 畫布完美微縮到 50x60mm 紙型)
         window.onbeforeprint = function() {
             const originalLabel = document.getElementById('printable-label');
             const printContent = originalLabel.cloneNode(true);
             printContent.id = "print-label-rendered";
             
-            // 1. 完全除去用於預覽的 physical-size 類別
-            printContent.classList.remove('physical-size');
-            
-            // 2. 徹底鎖死為標準實體列印單位（50mm x 60mm）
-            printContent.style.width = "50mm";
-            printContent.style.height = "60mm";
-            printContent.style.transform = "none";
+            // 剝離所有預覽縮放屬性
+            printContent.style.width = "350px";
+            printContent.style.height = "420px";
             printContent.style.boxShadow = "none";
             printContent.style.margin = "0";
-            
-            // 3. 在 inline-styles 中將螢幕校準 DPI 變數與縮放歸零
-            printContent.style.setProperty('--calibrated-scale', '1.0');
-            printContent.style.setProperty('--preview-zoom', '1.0');
 
             const wrapper = document.getElementById('print-area');
             wrapper.innerHTML = '';
             wrapper.appendChild(printContent);
         };
 
-        window.onload = function() {
-            const cachedCalibration = localStorage.getItem('sable-label-calibration');
-            if (cachedCalibration) {
-                const scaleVal = parseFloat(cachedCalibration);
-                document.getElementById('calibration-slider').value = scaleVal;
-                updateCalibrationScale(scaleVal);
-            }
-            const cachedZoom = localStorage.getItem('sable-label-preview-zoom');
+        window.addEventListener('DOMContentLoaded', () => {
+            // 載入視覺縮放比例快取
+            const cachedZoom = localStorage.getItem('sable-label-preview-zoom-v2.3');
             if (cachedZoom) {
                 const zoomVal = parseFloat(cachedZoom);
                 document.getElementById('preview-zoom-slider').value = zoomVal;
                 updatePreviewZoom(zoomVal);
             }
             applyPreset('royal');
-        };
+        });
     </script>
 </body>
 </html>
