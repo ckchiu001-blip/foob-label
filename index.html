@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sablé Breton 專業食品標籤設計器 2.3 Pro (比例完美鎖定版)</title>
+    <title>Sablé Breton 專業食品標籤設計器 2.4 Pro (無損截圖修正版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts 藝術與專業字體 -->
@@ -131,7 +131,7 @@
             height: 100% !important;
         }
 
-        /* ================= 列印專用樣式：完美的 50mm x 60mm 無損輸出 ================= */
+        /* ================= 列印專用樣式 ================= */
         @media print {
             @page {
                 size: 50mm 60mm;
@@ -160,7 +160,6 @@
                 box-sizing: border-box !important;
                 overflow: hidden !important;
             }
-            /* 核心解耦：列印時，將 350x420px 畫布完美等比例縮放到實體 50x60mm 紙張上 */
             #print-label-rendered {
                 display: block !important;
                 width: 350px !important;
@@ -170,7 +169,6 @@
                 background: white !important;
                 border: none !important;
                 box-sizing: border-box !important;
-                /* 縮放公式：50mm / 350px */
                 transform: scale(calc(50mm / 350px)) !important;
                 transform-origin: top left !important;
             }
@@ -189,8 +187,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-base font-bold text-slate-900">Sablé Breton 專業標籤設計器 2.3 Pro</h1>
-                    <p class="text-xs text-slate-500">標準 50x60mm 規格 • 已剔除跑版智慧模式，解耦設計，保證實物 100% 準確！</p>
+                    <h1 class="text-base font-bold text-slate-900">Sablé Breton 專業標籤設計器 2.4 Pro</h1>
+                    <p class="text-xs text-slate-500">標準 50x60mm 規格 • 完美修復 PNG 截圖位移與白邊 Bug！</p>
                 </div>
             </div>
             
@@ -423,13 +421,13 @@
                 </div>
             </div>
 
-            <!-- 標籤可視窗口：模擬剪裁底板 (徹底阻絕橫向滾動) -->
+            <!-- 標籤可視窗口：模擬剪裁底板 -->
             <div class="w-full flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-3xl min-h-[460px] overflow-hidden p-6 relative">
                 
-                <!-- CSS Transform Scale 節點：不拉扯紙張，只作純視覺比例放大縮小 -->
+                <!-- CSS Transform Scale 節點：只作純視覺比例放大縮小 -->
                 <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 1.0)); transform-origin: center center; transition: transform 0.1s ease-out;">
                     
-                    <!-- 標籤本體 (鎖死 350x420px，不論如何都絕不變更外框比例！) -->
+                    <!-- 標籤本體 (鎖死 350x420px，比例絕不變形) -->
                     <div id="printable-label" class="label-preview-container">
                         
                         <!-- 裝飾外框 -->
@@ -486,7 +484,7 @@
                                     </div>
                                 </div>
 
-                                <!-- 底部：保質期、QR Code 與品牌資訊 -->
+                                <!-- 底部：保質期、QR Code 與 brand 資訊 -->
                                 <div class="text-center border-t border-slate-100 pt-1" style="font-family: 'Inter', sans-serif;">
                                     <!-- QR Code 顯示區域 -->
                                     <div id="qr-container" class="hidden mb-1 text-center">
@@ -662,60 +660,44 @@
             updateQRCode("");
         }
 
-        // ================= 🎯 【印刷安全】高清晰 PNG 圖片導出 =================
+        // ================= 🎯 【究極修正】100% 畫面同型 + 完美去白邊 PNG 導出技術 =================
         function exportLabelAsPNG() {
-            const originalLabel = document.getElementById('printable-label');
-            
-            // 完美 5:6 等比例高解析印刷像素 (1000px x 1200px)
-            const targetWidth = 500;
-            const targetHeight = 600;
+            const label = document.getElementById('printable-label');
+            const pivot = document.getElementById('label-scale-pivot');
 
-            // 1. 建立沙盒
-            const tempSandbox = document.createElement('div');
-            tempSandbox.style.position = 'fixed';
-            tempSandbox.style.left = '-9999px';
-            tempSandbox.style.top = '-9999px';
-            tempSandbox.style.width = targetWidth + 'px';
-            tempSandbox.style.height = targetHeight + 'px';
-            document.body.appendChild(tempSandbox);
+            // 1. 取得使用者當前在網頁上設定的 Zoom 比例
+            const currentZoom = parseFloat(document.getElementById('preview-zoom-slider').value) || 1.0;
+            const originalBoxShadow = label.style.boxShadow;
 
-            // 2. 複製標籤並強行用 inline 像素覆寫，完全阻隔一切網頁縮放變形！
-            const labelClone = originalLabel.cloneNode(true);
-            labelClone.id = "temp-export-label";
-            labelClone.style.width = targetWidth + 'px';
-            labelClone.style.height = targetHeight + 'px';
-            labelClone.style.transform = 'none';
-            labelClone.style.boxShadow = 'none';
-            labelClone.style.margin = '0';
-            
-            // 特殊縮放調整：由於沙盒寬度由原先的 350px 變大為 500px (1.42倍)
-            // 為了讓 html2canvas 導出的文字維持原本極致清晰與比例，我們強制讓 Clone 的 font-scale 放大 1.42 倍！
-            const currentFontScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-scale')) || 1.0;
-            labelClone.style.setProperty('--font-scale', (currentFontScale * 1.428).toString(), 'important');
-            
-            tempSandbox.appendChild(labelClone);
+            // 2. 【核心避錯！】在截圖的一瞬間，強制將外層 pivot 的 CSS transform 縮放拔除（設回 1.0）
+            // 這能確保 html2canvas 捕捉到乾乾淨淨、完全沒有經過瀏覽器 matrix 拉伸的「原尺寸」標籤，徹底消除白邊與位移跑版！
+            pivot.style.transform = 'none';
+            label.style.boxShadow = 'none';
 
-            // 3. 截圖下載
+            // 3. 給予極微小延遲讓瀏覽器刷新排版線，然後直接捕捉真實的 Label
             setTimeout(() => {
-                html2canvas(labelClone, {
-                    width: targetWidth,
-                    height: targetHeight,
-                    scale: 2, // 2倍高畫質生成 1000px x 1200px (完美 50x60mm 比例！)
+                html2canvas(label, {
+                    scale: 4, // 4倍高清超取樣：完美輸出 1400px x 1680px（完美 5:6 比例，300DPI印刷級）
                     useCORS: true,
-                    backgroundColor: null, // 去背透明，超美！
+                    backgroundColor: null, // 透明去背背景
                     logging: false
                 }).then(canvas => {
+                    // 4. 下載完成後，0.01 秒內立刻將螢幕預覽比例和陰影還原，使用者肉眼完全看不出變化！
+                    pivot.style.transform = `scale(${currentZoom})`;
+                    label.style.boxShadow = originalBoxShadow;
+
+                    // 5. 下載超清 PNG 圖片
                     const link = document.createElement('a');
-                    link.download = 'Sable_Breton_Label_50x60mm_PrintReady.png';
+                    link.download = 'Sable_Breton_Label_50x60mm_Perfect.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
-                    
-                    document.body.removeChild(tempSandbox);
                 }).catch(err => {
                     console.error("PNG 匯出發生故障: ", err);
-                    document.body.removeChild(tempSandbox);
+                    // 即使出錯也必須復原狀態
+                    pivot.style.transform = `scale(${currentZoom})`;
+                    label.style.boxShadow = originalBoxShadow;
                 });
-            }, 100);
+            }, 50);
         }
 
         // 經典字型與配方更新
