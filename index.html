@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sablé Breton 專業食品標籤設計器 2.5 Pro (超高畫質導出版)</title>
+    <title>Sablé Breton 專業食品標籤設計器 3.0 Pro (安全修復版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts 藝術與專業字體 -->
@@ -26,65 +26,76 @@
             --title-scale: 1.0; /* 標題獨立縮放 */
             --logo-scale: 1.0; /* Logo 獨立縮放 */
             --qr-scale: 1.0; /* QR Code 獨立縮放 */
-            --preview-zoom: 1.0; /* 視覺縮放比例 (預設為 100%) */
+            --preview-zoom: 1.0; /* 視覺縮放比例 */
+            
+            /* 動態標籤寬高尺寸 (預設為 350x420) */
+            --label-width: 350px;
+            --label-height: 420px;
+            --allergen-gap: 0.015; /* 成分與過敏原間距系數 */
         }
 
-        /* 標籤容器：鎖定完美的 350px 寬、420px 高 (5:6 黃金分割) */
+        /* 標籤預覽容器：寬高由 JS 動態設定 */
         .label-preview-container {
-            width: 350px !important;
-            height: 420px !important;
+            width: var(--label-width) !important;
+            height: var(--label-height) !important;
             background-color: var(--label-bg);
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12);
             position: relative;
             box-sizing: border-box;
-            margin: 0 auto;
+            transition: width 0.2s ease, height 0.2s ease;
         }
 
-        /* ==== 絕對穩定的固定像素排版，預防文字溢出 ==== */
+        /* ==== 絕對安全與比例同型的排版設計 ==== */
         .dynamic-title {
-            font-size: calc(21px * var(--font-scale) * var(--title-scale)) !important;
+            font-size: calc(var(--label-width) * 0.06 * var(--font-scale) * var(--title-scale)) !important;
             line-height: 1.15 !important;
         }
         .dynamic-category {
-            font-size: calc(12px * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.034 * var(--font-scale)) !important;
             line-height: 1.2 !important;
             letter-spacing: 0.08em;
         }
         .dynamic-subtitle {
-            font-size: calc(10px * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.028 * var(--font-scale)) !important;
             line-height: 1.2 !important;
         }
         .dynamic-body {
-            font-size: calc(8.5px * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.024 * var(--font-scale)) !important;
             line-height: 1.35 !important;
         }
         .dynamic-warning-title {
-            font-size: calc(8px * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.022 * var(--font-scale)) !important;
             line-height: 1.2 !important;
         }
         .dynamic-warning-body {
-            font-size: calc(7.5px * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.021 * var(--font-scale)) !important;
             line-height: 1.2 !important;
         }
+        
+        /* 將底部小標籤與數值直接綁定主題色，杜絕過淺跑版 */
         .dynamic-footer-label {
-            font-size: calc(6.5px * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.018 * var(--font-scale)) !important;
             line-height: 1.1 !important;
+            color: var(--label-text) !important;
+            opacity: 0.8; /* 保留極輕微的優雅透光，但依然是清晰的深色 */
         }
         .dynamic-footer-value {
-            font-size: calc(7.5px * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.0215 * var(--font-scale)) !important;
             line-height: 1.1 !important;
+            color: var(--label-text) !important;
+            font-weight: 700 !important;
         }
 
         /* 邊框與間距 */
         .outer-border-frame {
-            border: 1px solid var(--label-accent);
-            padding: 3px;
+            border: calc(var(--label-width) * 0.003) solid var(--label-accent);
+            padding: calc(var(--label-width) * 0.008);
             height: 100%;
             box-sizing: border-box;
         }
         .inner-border-frame {
-            border: 3px double var(--label-accent);
-            padding: 10px 12px 6px 12px;
+            border: calc(var(--label-width) * 0.008) double var(--label-accent);
+            padding: calc(var(--label-width) * 0.028) calc(var(--label-width) * 0.034) calc(var(--label-width) * 0.018) calc(var(--label-width) * 0.034);
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -92,26 +103,26 @@
             box-sizing: border-box;
         }
 
-        /* 精緻分割線 */
+        /* 分割線 */
         .dynamic-divider {
             width: 60%;
-            height: 1px;
-            margin: 6px auto;
+            height: calc(var(--label-width) * 0.002);
+            margin: calc(var(--label-width) * 0.015) auto;
             opacity: 0.6;
             background-color: var(--label-accent);
         }
 
         /* 裝飾圖示與自訂 Logo */
         .dynamic-crest {
-            height: 14px;
-            width: 14px;
-            margin: 0 auto 3px auto;
+            height: calc(var(--label-width) * 0.04);
+            width: calc(var(--label-width) * 0.04);
+            margin: 0 auto calc(var(--label-width) * 0.008) auto;
         }
         
         .logo-wrapper {
-            max-width: calc(65px * var(--logo-scale));
-            max-height: calc(35px * var(--logo-scale));
-            margin: 0 auto 3px auto;
+            max-width: calc(var(--label-width) * 0.18 * var(--logo-scale));
+            max-height: calc(var(--label-width) * 0.10 * var(--logo-scale));
+            margin: 0 auto calc(var(--label-width) * 0.008) auto;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -119,10 +130,10 @@
 
         /* QR Code 樣式與縮放 */
         .qr-wrapper {
-            width: calc(48px * var(--qr-scale));
-            height: calc(48px * var(--qr-scale));
+            width: calc(var(--label-width) * 0.13 * var(--qr-scale));
+            height: calc(var(--label-width) * 0.13 * var(--qr-scale));
             background: white;
-            padding: 2px;
+            padding: calc(var(--label-width) * 0.005);
             border: 1px solid #ddd;
             display: inline-block;
         }
@@ -131,20 +142,14 @@
             height: 100% !important;
         }
 
+        /* 成分與過敏提示自訂上下間距 */
+        .allergen-spacing-box {
+            margin-top: calc(var(--label-width) * var(--allergen-gap)) !important;
+            margin-bottom: calc(var(--label-width) * var(--allergen-gap)) !important;
+        }
+
         /* ================= 列印專用樣式 ================= */
         @media print {
-            @page {
-                size: 50mm 60mm;
-                margin: 0 !important;
-            }
-            html, body {
-                width: 50mm !important;
-                height: 60mm !important;
-                background: white !important;
-                color: black !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
             .no-print {
                 display: none !important;
             }
@@ -153,29 +158,18 @@
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 50mm !important;
-                height: 60mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
                 box-sizing: border-box !important;
                 overflow: hidden !important;
-            }
-            #print-label-rendered {
-                display: block !important;
-                width: 350px !important;
-                height: 420px !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                background: white !important;
-                border: none !important;
-                box-sizing: border-box !important;
-                transform: scale(calc(50mm / 350px)) !important;
-                transform-origin: top left !important;
             }
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- 提示通知 Banner -->
+    <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-xl shadow-xl text-xs font-semibold tracking-wide transition-all duration-300 opacity-0 pointer-events-none z-[999]">
+        設定儲存成功！
+    </div>
 
     <!-- 頂部控制列 (免列印) -->
     <header class="no-print bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-50 shadow-sm">
@@ -187,21 +181,21 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-base font-bold text-slate-900">Sablé Breton 專業標籤設計器 2.5 Pro</h1>
-                    <p class="text-xs text-slate-500">標準 50x60mm 規格 • 升級文字超寬上限 & 千萬像素 1200DPI 印刷級無損 PNG 導出！</p>
+                    <h1 class="text-base font-bold text-slate-900">Sablé Breton 專業標籤設計器 3.0 Pro</h1>
+                    <p class="text-xs text-slate-500">標準/自訂規格標籤貼紙系統 • 已解決底部資訊標題顏色過淺問題</p>
                 </div>
             </div>
             
             <div class="flex flex-wrap gap-2 w-full md:w-auto">
                 <!-- 匯出圖片按鈕 -->
-                <button onclick="exportLabelAsPNG()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm">
+                <button onclick="exportLabelAsPNG()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     下載超清圖檔 (PNG)
                 </button>
                 <!-- 瀏覽器列印按鈕 -->
-                <button onclick="window.print()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm">
+                <button onclick="window.print()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
@@ -214,113 +208,109 @@
     <!-- 主要操作與預覽區 -->
     <main class="no-print flex-1 max-w-7xl mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- 左側：多功能編輯面板 -->
-        <section class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 md:p-6 flex flex-col gap-5 max-h-[85vh] overflow-y-auto">
+        <!-- 左側：標籤設定、預設、尺寸、存檔控制面板 -->
+        <section class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 md:p-6 flex flex-col gap-5 max-h-[85vh] overflow-y-auto">
             
+            <!-- 📁 本地存盤管理 (Profiles Manager) -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    📁 標籤多存檔管理 (Label Profiles)
+                </h2>
+                
+                <div class="flex flex-col gap-3">
+                    <div class="flex gap-2">
+                        <select id="profile-select" class="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white font-medium focus:ring-1 focus:ring-amber-500" onchange="onProfileSelect()">
+                            <option value="">-- 建立新存檔 --</option>
+                        </select>
+                        <button onclick="loadSelectedProfile()" id="btn-load-profile" class="px-3 py-1.5 bg-slate-800 text-white hover:bg-slate-900 rounded-lg text-xs font-bold transition-all" disabled>讀取</button>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <input type="text" id="input-profile-name" placeholder="輸入此配方存檔名稱 (如: 經典原味)" class="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500">
+                        <button onclick="saveNewProfile()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm">💾 新建存檔</button>
+                        <button onclick="overwriteProfile()" id="btn-overwrite-profile" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm" disabled>🔄 覆蓋</button>
+                        <button onclick="deleteProfile()" id="btn-delete-profile" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-bold transition-all" disabled>🗑️</button>
+                    </div>
+
+                    <!-- 📤 / 📥 JSON 匯出與匯入功能按鈕 -->
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 mt-1">
+                        <button onclick="exportProfilesToJSON()" class="flex items-center justify-center gap-1.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold transition-all">
+                            📤 匯出備份 (JSON)
+                        </button>
+                        <button onclick="triggerJSONImport()" class="flex items-center justify-center gap-1.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold transition-all">
+                            📥 匯入還原 (JSON)
+                        </button>
+                        <input type="file" id="input-import-json" accept=".json" class="hidden">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📐 標籤尺寸與比例設定 (Aspect Ratio) -->
+            <div class="border-t border-slate-100 pt-4">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">標籤紙張實體尺寸 (Dimentions)</h2>
+                
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">紙張寬度 (Width mm)</label>
+                        <input type="number" id="input-label-w" value="50" min="10" max="200" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs" oninput="onDimensionChange()">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">紙張高度 (Height mm)</label>
+                        <input type="number" id="input-label-h" value="60" min="10" max="200" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs" oninput="onDimensionChange()">
+                    </div>
+                </div>
+
+                <!-- 快速尺寸預設 -->
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="setDimensionPreset(50, 60)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-md text-[10px] font-bold text-slate-600">50x60mm (直式熱門)</button>
+                    <button onclick="setDimensionPreset(40, 40)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-md text-[10px] font-bold text-slate-600">40x40mm (經典正方形)</button>
+                    <button onclick="setDimensionPreset(60, 40)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-md text-[10px] font-bold text-slate-600">60x40mm (橫式烘焙)</button>
+                    <button onclick="setDimensionPreset(70, 50)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-md text-[10px] font-bold text-slate-600">70x50mm (加大通用)</button>
+                </div>
+            </div>
+
             <!-- 1. 快速風格 -->
-            <div>
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">1. 選擇標籤風格預設</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <button onclick="applyPreset('royal')" class="p-2 text-left border rounded-xl hover:border-amber-400 focus:outline-none transition-all bg-amber-50/20 border-amber-200">
+            <div class="border-t border-slate-100 pt-4">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">選擇設計風格 Presets</h2>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="applyPreset('royal')" class="p-2.5 text-left border rounded-xl hover:border-amber-400 focus:outline-none transition-all bg-amber-50/20 border-amber-200">
                         <span class="block text-xs font-bold text-amber-900">巴黎皇室</span>
                         <span class="block text-[10px] text-amber-700">經典象牙白與雙金線</span>
                     </button>
-                    <button onclick="applyPreset('rustic')" class="p-2 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
+                    <button onclick="applyPreset('rustic')" class="p-2.5 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
                         <span class="block text-xs font-bold text-slate-800">手作烘焙</span>
                         <span class="block text-[10px] text-slate-500">牛皮紙復古感</span>
                     </button>
-                    <button onclick="applyPreset('modern')" class="p-2 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
+                    <button onclick="applyPreset('modern')" class="p-2.5 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
                         <span class="block text-xs font-bold text-slate-800">北歐極簡</span>
                         <span class="block text-[10px] text-slate-500">俐落黑白時尚風</span>
                     </button>
-                    <button onclick="applyPreset('vintage')" class="p-2 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
+                    <button onclick="applyPreset('vintage')" class="p-2.5 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
                         <span class="block text-xs font-bold text-emerald-900">莊園復古</span>
                         <span class="block text-[10px] text-emerald-700">經典草綠典雅調</span>
                     </button>
                 </div>
             </div>
 
-            <!-- 2. 獨立尺寸微調 (加強字體上限) -->
-            <div class="border-t border-slate-100 pt-4">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">2. 獨立元素尺寸調校</h2>
-                <div class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <!-- 全體文字比例 (上限提升至 1.8) -->
-                    <div>
-                        <div class="flex justify-between text-xs text-slate-600 mb-1">
-                            <span>整體文字縮放 (All Texts)</span>
-                            <span id="all-scale-num" class="font-bold text-amber-800">100%</span>
-                        </div>
-                        <input type="range" id="scale-all" min="0.5" max="1.8" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('all', this.value)">
-                    </div>
-                    <!-- 主標題獨立比例 -->
-                    <div>
-                        <div class="flex justify-between text-xs text-slate-600 mb-1">
-                            <span>主標題字體大小 (Product Title)</span>
-                            <span id="title-scale-num" class="font-bold text-amber-800">100%</span>
-                        </div>
-                        <input type="range" id="scale-title" min="0.6" max="1.4" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('title', this.value)">
-                    </div>
-                    <!-- Logo 獨立比例 -->
-                    <div id="logo-slider-group" class="hidden">
-                        <div class="flex justify-between text-xs text-slate-600 mb-1">
-                            <span>自訂 Logo 圖片大小 (Logo Size)</span>
-                            <span id="logo-scale-num" class="font-bold text-amber-800">100%</span>
-                        </div>
-                        <input type="range" id="scale-logo" min="0.5" max="2.0" step="0.1" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('logo', this.value)">
-                    </div>
-                    <!-- QR Code 獨立比例 -->
-                    <div id="qr-slider-group" class="hidden">
-                        <div class="flex justify-between text-xs text-slate-600 mb-1">
-                            <span>QR Code 大小 (QR Size)</span>
-                            <span id="qr-scale-num" class="font-bold text-amber-800">100%</span>
-                        </div>
-                        <input type="range" id="scale-qr" min="0.6" max="1.5" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('qr', this.value)">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. 上傳自訂 Logo & QR Code -->
-            <div class="border-t border-slate-100 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- 上傳 Logo -->
-                <div class="bg-amber-50/20 p-3.5 rounded-xl border border-amber-100 flex flex-col gap-2">
-                    <span class="block text-xs font-bold text-amber-900 uppercase">🛡️ 自訂商標 (Logo)</span>
-                    <input type="file" id="input-logo" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
-                    <div class="flex justify-between items-center mt-1">
-                        <span class="text-[10px] text-slate-400">支援 PNG, JPG, SVG 圖檔</span>
-                        <button onclick="clearLogo()" class="text-[10px] text-rose-600 font-bold hover:underline">清除 Logo</button>
-                    </div>
-                </div>
-
-                <!-- 設定 QR Code -->
-                <div class="bg-blue-50/20 p-3.5 rounded-xl border border-blue-100 flex flex-col gap-2">
-                    <span class="block text-xs font-bold text-blue-900 uppercase">🔗 網址 QR Code</span>
-                    <input type="text" id="input-qr" placeholder="輸入網址 (如官網、IG、WhatsApp)" class="w-full px-2 py-1 border border-slate-200 rounded-lg text-xs" oninput="updateQRCode(this.value)">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] text-slate-400">留空則不顯示 QR Code</span>
-                        <button onclick="clearQR()" class="text-[10px] text-rose-600 font-bold hover:underline">隱藏 QR Code</button>
-                    </div>
-                </div>
-            </div>
-
             <!-- 4. 文字內容編輯 -->
             <div class="border-t border-slate-100 pt-4">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">4. 標籤文字內容設定</h2>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">標籤文字與資訊編輯</h2>
                 
                 <div class="space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">主標題 (Title)</label>
-                            <input type="text" id="input-title" value="ORIGINAL FRENCH SABLÉ BRETON" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" oninput="updateLabelText()">
+                            <input type="text" id="input-title" value="ORIGINAL FRENCH SABLÉ BRETON" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">副分類 (Category)</label>
-                            <input type="text" id="input-category" value="COOKIES" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" oninput="updateLabelText()">
+                            <input type="text" id="input-category" value="COOKIES" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">產品副標題 (Subtitle)</label>
-                        <input type="text" id="input-subtitle" value="(TRADITIONAL BUTTER BISCUITS)" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" oninput="updateLabelText()">
+                        <input type="text" id="input-subtitle" value="(TRADITIONAL BUTTER BISCUITS)" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
                     </div>
 
                     <!-- 成分 -->
@@ -329,32 +319,32 @@
                             <label class="block text-[11px] font-semibold text-slate-500">產品配方與成分</label>
                             <span class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">過敏原前後請加雙星號 ** 產生粗體</span>
                         </div>
-                        <textarea id="input-ingredients" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500" oninput="updateLabelText()">**WHEAT** Flour (**GLUTEN**), **BUTTER** (**MILK**) (QUID 30%), Icing Sugar, **EGG**, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</textarea>
+                        <textarea id="input-ingredients" rows="3" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">**WHEAT** Flour (**GLUTEN**), **BUTTER** (**MILK**) (QUID 30%), Icing Sugar, **EGG**, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</textarea>
                     </div>
 
                     <!-- 過敏原提示 -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">過敏提示警告 (Allergen Warning)</label>
-                        <input type="text" id="input-allergen-warning" value="For allergens, see ingredients listed in BOLD." class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500" oninput="updateLabelText()">
+                        <input type="text" id="input-allergen-warning" value="For allergens, see ingredients listed in BOLD." class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
                     </div>
 
                     <!-- 日期與製造商 -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">最佳食用日期 (Best Before)</label>
-                            <input type="text" id="input-bb-date" value="21 / 06 / 2026" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" oninput="updateLabelText()">
+                            <input type="text" id="input-bb-date" value="21 / 06 / 2026" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">製造商 (Made by)</label>
-                            <input type="text" id="input-maker" value="A Cooking Day (CH3 6ET)" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" oninput="updateLabelText()">
+                            <input type="text" id="input-maker" value="A Cooking Day (CH3 6ET)" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 5. 進階色彩 -->
+            <!-- 5. 進階色彩與字型 -->
             <div class="border-t border-slate-100 pt-4">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">5. 自訂色彩與主字體</h2>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">自訂色彩與主字體</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 mb-1">標題字體</label>
@@ -388,143 +378,189 @@
         </section>
 
         <!-- 右側：100% 比例穩固預覽區 -->
-        <section class="lg:col-span-5 flex flex-col items-center justify-start gap-4 w-full">
+        <section class="lg:col-span-6 flex flex-col items-center justify-start gap-5 w-full">
             
-            <!-- 👁️ 顯示比例與實物1:1對齊控制台 -->
-            <div class="w-full bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col gap-3">
+            <!-- ⚡ 1. 獨立元素尺寸與間距調校 -->
+            <div class="w-full bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col gap-4">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <span class="text-xs font-bold text-slate-700">🔍 預覽畫面大小縮放 (DPI 校準)</span>
-                    <span id="zoom-factor" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">100% (原大)</span>
+                    <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        2. 獨立元素與間距尺寸調校 (Sizing & Spacing)
+                    </span>
+                    <span id="label-dimension-tag" class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">50x60mm</span>
                 </div>
-                <p class="text-slate-500 text-[11px] leading-relaxed">
-                    拉動滑桿可自由放大或縮小畫面（不影響列印和匯出尺寸）。若想在螢幕上看<b>實體 1:1 尺寸</b>，請拿一把尺貼在螢幕上，調整滑桿直到下方<b>藍色條剛好等於 3 公分</b>即可！
-                </p>
                 
-                <!-- 視覺縮放滑桿與微調按鈕 -->
-                <div class="flex items-center gap-2 mt-1">
-                    <button onclick="adjustPreviewZoom(-0.05)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-bold text-[11px]">-5%</button>
-                    <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="1.0" class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updatePreviewZoom(this.value)">
-                    <button onclick="adjustPreviewZoom(0.05)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-bold text-[11px]">+5%</button>
-                </div>
-
-                <!-- 快速比例預設按鈕 -->
-                <div class="flex gap-1.5 mt-1 justify-center">
-                    <button onclick="updatePreviewZoom(1.0); document.getElementById('preview-zoom-slider').value = 1.0;" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">100% (預設)</button>
-                    <button onclick="updatePreviewZoom(0.75); document.getElementById('preview-zoom-slider').value = 0.75;" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">75% (小螢幕)</button>
-                    <button onclick="updatePreviewZoom(0.5); document.getElementById('preview-zoom-slider').value = 0.5;" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">50% (微縮)</button>
-                </div>
-
-                <!-- 實物對齊：3cm 參考線 (30mm 在無 Zoom 時大約 113px) -->
-                <div class="mt-1 text-center bg-slate-50 p-2 rounded-xl border border-slate-100 shadow-inner">
-                    <div id="calibration-line" class="h-3.5 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--preview-zoom, 1.0));"></div>
-                    <span class="text-[10px] text-slate-500 mt-1.5 block font-bold">📏 實體尺規對其線 (微調使上條藍色長度 = 實體尺 3 公分)</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 整體文字縮放 (上限增至 1.8) -->
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>整體文字縮放 (All Texts)</span>
+                            <span id="all-scale-num" class="font-bold text-amber-800">100%</span>
+                        </div>
+                        <input type="range" id="scale-all" min="0.5" max="1.8" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('all', this.value)">
+                    </div>
+                    <!-- 主標題獨立比例 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>主標題字體大小 (Product Title)</span>
+                            <span id="title-scale-num" class="font-bold text-amber-800">100%</span>
+                        </div>
+                        <input type="range" id="scale-title" min="0.6" max="1.4" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('title', this.value)">
+                    </div>
+                    <!-- Logo 獨立比例 -->
+                    <div id="logo-slider-group" class="hidden">
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>Logo 圖片大小 (Logo Size)</span>
+                            <span id="logo-scale-num" class="font-bold text-amber-800">100%</span>
+                        </div>
+                        <input type="range" id="scale-logo" min="0.5" max="2.0" step="0.1" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('logo', this.value)">
+                    </div>
+                    <!-- QR Code 獨立比例 -->
+                    <div id="qr-slider-group" class="hidden">
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>QR Code 大小 (QR Size)</span>
+                            <span id="qr-scale-num" class="font-bold text-amber-800">100%</span>
+                        </div>
+                        <input type="range" id="scale-qr" min="0.6" max="1.5" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('qr', this.value)">
+                    </div>
+                    <!-- 成分與過敏原上下間距 -->
+                    <div class="md:col-span-2">
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>成分與過敏警告框距離 (Ingredients vs Allergen spacing)</span>
+                            <span id="gap-scale-num" class="font-bold text-amber-800">15px</span>
+                        </div>
+                        <input type="range" id="scale-gap" min="0.00" max="0.07" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateAllergenGap(this.value)">
+                    </div>
                 </div>
             </div>
 
-            <!-- 📥 超高清導出規格指示板 (新增) -->
-            <div class="w-full bg-emerald-50/50 border border-emerald-150 p-4 rounded-2xl text-xs text-emerald-900 shadow-sm">
-                <p class="font-bold text-emerald-950 flex items-center gap-1.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    DPI-Decoupled 專業印刷導出規格：
-                </p>
-                <ul class="list-disc pl-4 mt-2 space-y-1 text-slate-700 leading-relaxed text-[11px]">
-                    <li><b>導出尺寸</b>：<span class="text-emerald-900 font-bold">2800 x 3360 像素</span>（超清一千萬像素）。</li>
-                    <li><b>實體對比</b>：於實體 50x60mm 標籤紙列印時可達到極致的 <span class="text-emerald-900 font-bold">1420+ DPI</span> 商業級印刷精度。</li>
-                    <li><b>容量備註</b>：由於導出使用的是去背向量與純文字排版，PNG 的完美無損壓縮會使下載體積（如 200KB~400KB）看起來較小，這屬於正常物理壓縮，**清晰度絕對是最頂級無損的**。</li>
-                </ul>
-            </div>
-
-            <!-- 標籤可視窗口：模擬剪裁底板 -->
-            <div class="w-full flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-3xl min-h-[460px] overflow-hidden p-6 relative">
+            <!-- 主預覽與校準面板：水平/垂直對齊 -->
+            <div class="w-full flex flex-col md:flex-row gap-4 items-stretch">
                 
-                <!-- CSS Transform Scale 節點：只作純視覺比例放大縮小 -->
-                <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 1.0)); transform-origin: center center; transition: transform 0.1s ease-out;">
+                <!-- 標籤可視窗口 (左側) -->
+                <div id="label-viewport" class="flex-1 flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-3xl min-h-[460px] overflow-hidden p-6 relative">
                     
-                    <!-- 標籤本體 (鎖死 350x420px，比例絕不變形) -->
-                    <div id="printable-label" class="label-preview-container">
+                    <!-- CSS Transform Scale 節點：只作純視覺比例放大縮小 -->
+                    <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 1.0)); transform-origin: center center; transition: transform 0.1s ease-out;">
                         
-                        <!-- 裝飾外框 -->
-                        <div id="outer-border-wrapper" class="outer-border-frame">
+                        <!-- 標籤本體 (寬高變數鎖定，比例絕不變形) -->
+                        <div id="printable-label" class="label-preview-container">
                             
-                            <!-- 內層精緻雙框 -->
-                            <div id="inner-border-wrapper" class="inner-border-frame">
+                            <!-- 裝飾外框 -->
+                            <div id="outer-border-wrapper" class="outer-border-frame">
                                 
-                                <!-- 頂部商標/裝飾與產品名稱 -->
-                                <div class="text-center flex flex-col justify-start">
-                                    <!-- 預設麥穗圖示 -->
-                                    <svg id="decor-crest" class="dynamic-crest text-[var(--label-accent)]" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2C11.5 2 11 3.5 11 5C11 6.5 11.5 8 12 8C12.5 8 13 6.5 13 5C13 3.5 12.5 2 12 2M12 9C9 9 7.5 10.5 7.5 12C7.5 13.5 9 15 12 15C15 15 16.5 13.5 16.5 12C16.5 10.5 15 9 12 9M12 16C11 16 10 17 10 18.5C10 20 11 22 12 22C13 22 14 20 14 18.5C14 17 13 16 12 16Z"/>
-                                    </svg>
+                                <!-- 內層精緻雙框 -->
+                                <div id="inner-border-wrapper" class="inner-border-frame">
                                     
-                                    <!-- 自訂上傳 Logo 顯示區域 -->
-                                    <div id="logo-container" class="logo-wrapper hidden">
-                                        <img id="label-logo-img" src="" alt="Custom Logo" class="max-w-full max-h-full object-contain">
+                                    <!-- 頂部商標/裝飾與產品名稱 -->
+                                    <div class="text-center flex flex-col justify-start">
+                                        <!-- 預設麥穗圖示 -->
+                                        <svg id="decor-crest" class="dynamic-crest text-[var(--label-accent)]" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C11.5 2 11 3.5 11 5C11 6.5 11.5 8 12 8C12.5 8 13 6.5 13 5C13 3.5 12.5 2 12 2M12 9C9 9 7.5 10.5 7.5 12C7.5 13.5 9 15 12 15C15 15 16.5 13.5 16.5 12C16.5 10.5 15 9 12 9M12 16C11 16 10 17 10 18.5C10 20 11 22 12 22C13 22 14 20 14 18.5C14 17 13 16 12 16Z"/>
+                                        </svg>
+                                        
+                                        <!-- 自訂上傳 Logo 顯示區域 -->
+                                        <div id="logo-container" class="logo-wrapper hidden">
+                                            <img id="label-logo-img" src="" alt="Custom Logo" class="max-w-full max-h-full object-contain">
+                                        </div>
+                                        
+                                        <!-- 主標題 -->
+                                        <h2 id="label-title" class="dynamic-title font-bold text-center tracking-wide" style="font-family: 'Cinzel', serif; color: var(--label-text);">
+                                            ORIGINAL FRENCH SABLÉ BRETON
+                                        </h2>
+                                        <!-- 副標題 -->
+                                        <h3 id="label-category" class="dynamic-category font-semibold uppercase text-center mt-0.5 text-[var(--label-accent)]" style="font-family: 'Montserrat', sans-serif;">
+                                            COOKIES
+                                        </h3>
+                                        <!-- 產品說明 -->
+                                        <p id="label-subtitle" class="dynamic-subtitle text-center italic mt-0.5" style="color: var(--label-text); font-family: 'Cormorant Garamond', serif;">
+                                            (TRADITIONAL BUTTER BISCUITS)
+                                        </p>
+                                        
+                                        <!-- 分割線 -->
+                                        <div class="dynamic-divider"></div>
                                     </div>
-                                    
-                                    <!-- 主標題 -->
-                                    <h2 id="label-title" class="dynamic-title font-bold text-center tracking-wide" style="font-family: 'Cinzel', serif; color: var(--label-text);">
-                                        ORIGINAL FRENCH SABLÉ BRETON
-                                    </h2>
-                                    <!-- 副標題 -->
-                                    <h3 id="label-category" class="dynamic-category font-semibold uppercase text-center mt-0.5 text-[var(--label-accent)]" style="font-family: 'Montserrat', sans-serif;">
-                                        COOKIES
-                                    </h3>
-                                    <!-- 產品說明 -->
-                                    <p id="label-subtitle" class="dynamic-subtitle text-center italic mt-0.5" style="color: var(--label-text); font-family: 'Cormorant Garamond', serif;">
-                                        (TRADITIONAL BUTTER BISCUITS)
-                                    </p>
-                                    
-                                    <!-- 分割線 -->
-                                    <div class="dynamic-divider"></div>
-                                </div>
 
-                                <!-- 中間：成分與過敏警告 -->
-                                <div class="flex-1 flex flex-col justify-center my-1">
-                                    <!-- 成分內容 -->
-                                    <div class="dynamic-body text-slate-700 font-sans text-center" style="font-family: 'Inter', sans-serif;">
-                                        <strong style="color: var(--label-text); font-weight: 700;">Ingredients:</strong> 
-                                        <span id="label-ingredients">WHEAT Flour (GLUTEN), BUTTER (MILK) (QUID 30%), Icing Sugar, EGG, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</span>
-                                    </div>
-                                    
-                                    <!-- 過敏原警告框線 -->
-                                    <div class="border-t border-b border-dashed border-slate-300 py-1 my-1 text-center">
-                                        <span class="dynamic-warning-title font-bold text-slate-900 uppercase block tracking-wider">
-                                            ⚠️ ALLERGEN WARNING:
-                                        </span>
-                                        <span id="label-allergen" class="dynamic-warning-body block text-slate-600 mt-0.5" style="font-family: 'Inter', sans-serif;">
-                                            For allergens, see ingredients listed in BOLD.
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- 底部：保質期、QR Code 與 brand 資訊 -->
-                                <div class="text-center border-t border-slate-100 pt-1" style="font-family: 'Inter', sans-serif;">
-                                    <!-- QR Code 顯示區域 -->
-                                    <div id="qr-container" class="hidden mb-1 text-center">
-                                        <div class="qr-wrapper">
-                                            <div id="label-qr-code"></div>
+                                    <!-- 中間：成分與過敏警告 -->
+                                    <div class="flex-1 flex flex-col justify-center my-0.5">
+                                        <!-- 成分內容 -->
+                                        <div class="dynamic-body text-slate-700 font-sans text-center" style="font-family: 'Inter', sans-serif;">
+                                            <strong style="color: var(--label-text); font-weight: 700;">Ingredients:</strong> 
+                                            <span id="label-ingredients">WHEAT Flour (GLUTEN), BUTTER (MILK) (QUID 30%), Icing Sugar, EGG, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</span>
+                                        </div>
+                                        
+                                        <!-- 過敏原警告框線 -->
+                                        <div class="border-t border-b border-dashed border-slate-300 py-1 allergen-spacing-box text-center">
+                                            <span class="dynamic-warning-title font-bold text-slate-900 uppercase block tracking-wider">
+                                                ⚠️ ALLERGEN WARNING:
+                                            </span>
+                                            <span id="label-allergen" class="dynamic-warning-body block text-slate-600 mt-0.5" style="font-family: 'Inter', sans-serif;">
+                                                For allergens, see ingredients listed in BOLD.
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <div class="flex justify-between items-center gap-1">
-                                        <div class="text-left">
-                                            <span class="block dynamic-footer-label uppercase text-slate-400">BEST BEFORE:</span>
-                                            <strong id="label-bb-date" class="dynamic-footer-value text-slate-800">21 / 06 / 2026</strong>
+                                    <!-- 底部：保質期、QR Code 與品牌資訊 -->
+                                    <div class="text-center border-t border-slate-100 pt-1" style="font-family: 'Inter', sans-serif;">
+                                        <!-- QR Code 顯示區域 -->
+                                        <div id="qr-container" class="hidden mb-1 text-center">
+                                            <div class="qr-wrapper">
+                                                <div id="label-qr-code"></div>
+                                            </div>
                                         </div>
-                                        <div class="text-right">
-                                            <span class="block dynamic-footer-label uppercase text-slate-400">Produced By:</span>
-                                            <strong id="label-maker" class="dynamic-footer-value text-slate-800">A Cooking Day (CH3 6ET)</strong>
+
+                                        <div class="flex justify-between items-center gap-1">
+                                            <div class="text-left">
+                                                <!-- 已將字體顏色綁定 var(--label-text)，解決先前過淺問題 -->
+                                                <span class="block dynamic-footer-label uppercase">BEST BEFORE:</span>
+                                                <strong id="label-bb-date" class="dynamic-footer-value">21 / 06 / 2026</strong>
+                                            </div>
+                                            <div class="text-right">
+                                                <!-- 已將字體顏色綁定 var(--label-text)，解決先前過淺問題 -->
+                                                <span class="block dynamic-footer-label uppercase">Produced By:</span>
+                                                <strong id="label-maker" class="dynamic-footer-value">A Cooking Day (CH3 6ET)</strong>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
+                                </div>
                             </div>
+
                         </div>
 
                     </div>
 
+                </div>
+
+                <!-- 👁️ 預覽畫面大小縮放 (DPI 校準) (已移至右側) -->
+                <div class="w-full md:w-60 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between gap-4">
+                    <div>
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2 mb-2">
+                            <span class="text-xs font-bold text-slate-700">🔍 3. 預覽縮放 / 尺規校準</span>
+                            <span id="zoom-factor" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">100%</span>
+                        </div>
+                        <p class="text-slate-500 text-[10px] leading-relaxed mb-3">
+                            拿起一把直尺貼在螢幕上，調整下方滑桿或按鈕，使下方<b>深藍色條長度剛好等於實體 3 公分</b>，螢幕上的標籤即為 **1:1 實物實際尺寸**！
+                        </p>
+                        
+                        <!-- 視覺縮放滑桿與微調按鈕 -->
+                        <div class="flex flex-col gap-2">
+                            <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="1.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updatePreviewZoom(this.value)">
+                            <div class="flex justify-between">
+                                <button onclick="adjustPreviewZoom(-0.05)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-semibold text-[10px]">-5%</button>
+                                <button onclick="updatePreviewZoom(1.0); document.getElementById('preview-zoom-slider').value = 1.0;" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-600">重設 100%</button>
+                                <button onclick="adjustPreviewZoom(0.05)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-semibold text-[10px]">+5%</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 實物對齊參考線 (垂直模式下長度為寬度) -->
+                    <div class="text-center bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-inner mt-2">
+                        <div id="calibration-line" class="h-3.5 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--preview-zoom, 1.0));"></div>
+                        <span class="text-[9px] text-slate-500 mt-2 block font-bold leading-tight">📏 微調使上條藍色長度 = 實體尺 3 公分</span>
+                    </div>
                 </div>
 
             </div>
@@ -532,7 +568,7 @@
         </section>
     </main>
 
-    <!-- 隱藏的列印中介容器 (列印時會被填入無校準、純淨比例的 50x60mm 節點) -->
+    <!-- 隱藏的列印中介容器 -->
     <div class="hidden print-wrapper">
         <div id="print-area"></div>
     </div>
@@ -576,34 +612,312 @@
 
         let currentQRText = "";
         let qrGenerator = null;
+        let localProfiles = {};
 
-        // 微調獨立元素尺寸
+        // 提示 Banner (Toast) 顯示控制
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.innerText = text;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2500);
+        }
+
+        // ================= 📐 標籤尺寸調整與自適應計算 =================
+        function onDimensionChange() {
+            const wMm = parseFloat(document.getElementById('input-label-w').value) || 50;
+            const hMm = parseFloat(document.getElementById('input-label-h').value) || 60;
+            
+            // 標籤尺寸最大預覽框定為 350x420 像素以保證不撐爆螢幕
+            const maxW = 350;
+            const maxH = 420;
+            
+            let renderW = maxW;
+            let renderH = (hMm / wMm) * renderW;
+            
+            if (renderH > maxH) {
+                renderH = maxH;
+                renderW = (wMm / hMm) * renderH;
+            }
+            
+            const root = document.documentElement;
+            root.style.setProperty('--label-width', `${renderW}px`);
+            root.style.setProperty('--label-height', `${renderH}px`);
+            
+            document.getElementById('label-dimension-tag').innerText = `${wMm}x${hMm}mm`;
+            
+            // 更新間距數值顯示
+            const currentGap = document.getElementById('scale-gap').value;
+            updateAllergenGap(currentGap);
+        }
+
+        function setDimensionPreset(w, h) {
+            document.getElementById('input-label-w').value = w;
+            document.getElementById('input-label-h').value = h;
+            onDimensionChange();
+            showToast(`已套用紙張尺寸: ${w} x ${h} mm`);
+        }
+
+        // ================= 📁 標籤多配方本地存檔系統 =================
+        function loadAllProfiles() {
+            const saved = localStorage.getItem('sable-label-profiles-v3');
+            if (saved) {
+                localProfiles = JSON.parse(saved);
+            } else {
+                localProfiles = {};
+            }
+            updateProfileDropdown();
+        }
+
+        function updateProfileDropdown() {
+            const select = document.getElementById('profile-select');
+            select.innerHTML = '<option value="">-- 建立新存檔 --</option>';
+            
+            Object.keys(localProfiles).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+                select.appendChild(opt);
+            });
+            onProfileSelect();
+        }
+
+        function onProfileSelect() {
+            const select = document.getElementById('profile-select');
+            const selectedName = select.value;
+            
+            const hasSelected = selectedName !== "";
+            document.getElementById('btn-load-profile').disabled = !hasSelected;
+            document.getElementById('btn-overwrite-profile').disabled = !hasSelected;
+            document.getElementById('btn-delete-profile').disabled = !hasSelected;
+            
+            if (hasSelected) {
+                document.getElementById('input-profile-name').value = selectedName;
+            } else {
+                document.getElementById('input-profile-name').value = "";
+            }
+        }
+
+        // 儲存新存檔
+        function saveNewProfile() {
+            const nameInput = document.getElementById('input-profile-name');
+            const name = nameInput.value.trim();
+            if (!name) {
+                showToast("⚠️ 請先輸入配方存檔名稱！");
+                return;
+            }
+
+            localProfiles[name] = captureStateData();
+            localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
+            loadAllProfiles();
+            document.getElementById('profile-select').value = name;
+            onProfileSelect();
+            showToast(`💾 成功儲存配方「${name}」！`);
+        }
+
+        // 覆蓋當前存檔
+        function overwriteProfile() {
+            const select = document.getElementById('profile-select');
+            const selectedName = select.value;
+            if (!selectedName) return;
+
+            localProfiles[selectedName] = captureStateData();
+            localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
+            showToast(`🔄 已覆蓋更新配方「${selectedName}」！`);
+        }
+
+        // 讀取所選存檔
+        function loadSelectedProfile() {
+            const select = document.getElementById('profile-select');
+            const selectedName = select.value;
+            if (!selectedName || !localProfiles[selectedName]) return;
+
+            applyStateData(localProfiles[selectedName]);
+            showToast(`讀取配方「${selectedName}」成功！`);
+        }
+
+        // 刪除存檔
+        function deleteProfile() {
+            const select = document.getElementById('profile-select');
+            const selectedName = select.value;
+            if (!selectedName) return;
+
+            delete localProfiles[selectedName];
+            localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
+            loadAllProfiles();
+            showToast(`🗑️ 已刪除配方「${selectedName}」`);
+        }
+
+        // 🎯 新增：匯出所有配方為 JSON
+        function exportProfilesToJSON() {
+            if (Object.keys(localProfiles).length === 0) {
+                showToast("⚠️ 目前沒有任何存檔可以匯出！");
+                return;
+            }
+            const jsonString = JSON.stringify(localProfiles, null, 2);
+            const blob = new Blob([jsonString], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `sable_breton_profiles_backup_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast("📤 成功導出所有配方備份檔！");
+        }
+
+        // 🎯 新增：觸發 JSON 檔案匯入
+        function triggerJSONImport() {
+            document.getElementById('input-import-json').click();
+        }
+
+        // 🎯 新增：從 JSON 匯入並還原所有配方
+        function importProfilesFromJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    // 驗證是否為正確的物件格式
+                    if (typeof importedData !== 'object' || importedData === null || Array.isArray(importedData)) {
+                        throw new Error("格式不正確");
+                    }
+
+                    // 合併並匯入 (合併新舊存檔，若同名則會被新檔覆蓋)
+                    localProfiles = Object.assign({}, localProfiles, importedData);
+                    localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
+                    
+                    // 重新加載並更新下拉選單
+                    loadAllProfiles();
+                    showToast("📥 匯入成功！已將所有配方還原並合併！");
+                } catch (err) {
+                    console.error("JSON 匯入出錯: ", err);
+                    showToast("❌ 匯入失敗，請確認是否為正確的備份 JSON 檔案！");
+                }
+                // 清空 input 數值，保證同名檔案可以再次觸發 change 事件
+                e.target.value = "";
+            };
+            reader.readAsText(file);
+        }
+
+        // 擷取當前所有 Input 與樣式狀態
+        function captureStateData() {
+            return {
+                title: document.getElementById('input-title').value,
+                category: document.getElementById('input-category').value,
+                subtitle: document.getElementById('input-subtitle').value,
+                ingredients: document.getElementById('input-ingredients').value,
+                allergen: document.getElementById('input-allergen-warning').value,
+                bbDate: document.getElementById('input-bb-date').value,
+                maker: document.getElementById('input-maker').value,
+                fontTitle: document.getElementById('select-font-title').value,
+                bgColor: document.getElementById('select-bg-color').value,
+                accentColor: document.getElementById('select-accent-color').value,
+                labelW: document.getElementById('input-label-w').value,
+                labelH: document.getElementById('input-label-h').value,
+                scaleAll: document.getElementById('scale-all').value,
+                scaleTitle: document.getElementById('scale-title').value,
+                scaleLogo: document.getElementById('scale-logo').value,
+                scaleQr: document.getElementById('scale-qr').value,
+                scaleGap: document.getElementById('scale-gap').value,
+                customLogo: document.getElementById('label-logo-img').src,
+                qrText: document.getElementById('input-qr').value
+            };
+        }
+
+        // 應用讀取的狀態
+        function applyStateData(data) {
+            document.getElementById('input-title').value = data.title || "";
+            document.getElementById('input-category').value = data.category || "";
+            document.getElementById('input-subtitle').value = data.subtitle || "";
+            document.getElementById('input-ingredients').value = data.ingredients || "";
+            document.getElementById('input-allergen-warning').value = data.allergen || "";
+            document.getElementById('input-bb-date').value = data.bbDate || "";
+            document.getElementById('input-maker').value = data.maker || "";
+            document.getElementById('select-font-title').value = data.fontTitle || "'Cinzel', serif";
+            document.getElementById('select-bg-color').value = data.bgColor || "#FCFAF6";
+            document.getElementById('select-accent-color').value = data.accentColor || "#A38051";
+            document.getElementById('input-label-w').value = data.labelW || 50;
+            document.getElementById('input-label-h').value = data.labelH || 60;
+            document.getElementById('scale-all').value = data.scaleAll || 1.00;
+            document.getElementById('scale-title').value = data.scaleTitle || 1.00;
+            document.getElementById('scale-logo').value = data.scaleLogo || 1.00;
+            document.getElementById('scale-qr').value = data.scaleQr || 1.00;
+            document.getElementById('scale-gap').value = data.scaleGap || 0.015;
+
+            // 應用 Logo 與 QR Code
+            if (data.customLogo && data.customLogo.startsWith('data:image')) {
+                document.getElementById('label-logo-img').src = data.customLogo;
+                document.getElementById('logo-container').classList.remove('hidden');
+                document.getElementById('decor-crest').classList.add('hidden');
+                document.getElementById('logo-slider-group').classList.remove('hidden');
+            } else {
+                clearLogo();
+            }
+
+            document.getElementById('input-qr').value = data.qrText || "";
+            updateQRCode(data.qrText || "");
+
+            // 更新介面滑桿數值
+            updateFontScale('all', data.scaleAll || 1.00);
+            updateFontScale('title', data.scaleTitle || 1.00);
+            updateFontScale('logo', data.scaleLogo || 1.00);
+            updateFontScale('qr', data.scaleQr || 1.00);
+            updateAllergenGap(data.scaleGap || 0.015);
+
+            // 更新標籤大小與重繪
+            onDimensionChange();
+            updateStyles();
+            updateLabelText();
+        }
+
+        // ================= 元素尺寸、間距微調 (DPI Safe) =================
         function updateFontScale(type, value) {
             const root = document.documentElement;
             if (type === 'all') {
                 root.style.setProperty('--font-scale', value);
+                document.getElementById('scale-all').value = value;
                 document.getElementById('all-scale-num').innerText = `${Math.round(value * 100)}%`;
             } else if (type === 'title') {
                 root.style.setProperty('--title-scale', value);
+                document.getElementById('scale-title').value = value;
                 document.getElementById('title-scale-num').innerText = `${Math.round(value * 100)}%`;
             } else if (type === 'logo') {
                 root.style.setProperty('--logo-scale', value);
+                document.getElementById('scale-logo').value = value;
                 document.getElementById('logo-scale-num').innerText = `${Math.round(value * 100)}%`;
             } else if (type === 'qr') {
                 root.style.setProperty('--qr-scale', value);
+                document.getElementById('scale-qr').value = value;
                 document.getElementById('qr-scale-num').innerText = `${Math.round(value * 100)}%`;
             }
         }
 
-        // 👁️ 調整畫面縮放變數 (純視覺 CSS 縮放，不影響後台與紙型比例)
+        // 成分與過敏原上下間距調整
+        function updateAllergenGap(value) {
+            const root = document.documentElement;
+            root.style.setProperty('--allergen-gap', value);
+            document.getElementById('scale-gap').value = value;
+            
+            // 換算顯示數值 (當前寬度下的像素值)
+            const rootW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-width')) || 350;
+            document.getElementById('gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
+        }
+
+        // 👁️ 調整預覽畫面縮放 (純視覺 CSS transform，不影響導出與列印)
         function updatePreviewZoom(value) {
             const root = document.documentElement;
             root.style.setProperty('--preview-zoom', value);
             document.getElementById('zoom-factor').innerText = `${Math.round(value * 100)}%`;
-            localStorage.setItem('sable-label-preview-zoom-v2.3', value);
+            localStorage.setItem('sable-label-preview-zoom-v3', value);
         }
 
-        // 視覺縮放微調按鈕
         function adjustPreviewZoom(delta) {
             const slider = document.getElementById('preview-zoom-slider');
             let val = parseFloat(slider.value) + delta;
@@ -613,24 +927,6 @@
             updatePreviewZoom(val);
         }
 
-        // 當使用者上傳自訂 Logo 圖片
-        document.getElementById('input-logo').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const logoImg = document.getElementById('label-logo-img');
-                    logoImg.src = event.target.result;
-                    
-                    document.getElementById('logo-container').classList.remove('hidden');
-                    document.getElementById('decor-crest').classList.add('hidden');
-                    document.getElementById('logo-slider-group').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // 清除自訂 Logo
         function clearLogo() {
             document.getElementById('input-logo').value = "";
             document.getElementById('label-logo-img').src = "";
@@ -669,13 +965,12 @@
             });
         }
 
-        // 清除/隱藏 QR Code
         function clearQR() {
             document.getElementById('input-qr').value = "";
             updateQRCode("");
         }
 
-        // ================= 🎯 【究極修正】2800x3360px 千萬像素印刷級無損導出技術 =================
+        // ================= 🎯 【印刷安全】最高級別 8 倍超清無損 PNG 導出 =================
         function exportLabelAsPNG() {
             const label = document.getElementById('printable-label');
             const pivot = document.getElementById('label-scale-pivot');
@@ -684,25 +979,25 @@
             const currentZoom = parseFloat(document.getElementById('preview-zoom-slider').value) || 1.0;
             const originalBoxShadow = label.style.boxShadow;
 
-            // 2. 移除縮放變形
+            // 2. 移除縮放與陰影，獲得 100% 精準原生畫布
             pivot.style.transform = 'none';
             label.style.boxShadow = 'none';
 
-            // 3. 捕捉真實 Label
+            // 3. 50毫秒延遲後捕捉，使用 scale: 8 超清重繪
             setTimeout(() => {
                 html2canvas(label, {
-                    scale: 8, // 【大幅提升】：超高取樣 8 倍！導出高達 2800 x 3360 像素的超清大圖（絕對無損無鋸齒，交給專業印刷廠標準）
+                    scale: 8, // 超高清 8 倍渲染，完美匯出極致高清大圖（1200+ DPI 超強無損級）
                     useCORS: true,
-                    backgroundColor: null, // 透明去背背景，極致美觀
+                    backgroundColor: null, // 透明去背背景，極致精緻
                     logging: false
                 }).then(canvas => {
-                    // 4. 下載完成後立刻將螢幕預覽比例和陰影還原
+                    // 4. 下載完成後立刻將網頁預覽還原
                     pivot.style.transform = `scale(${currentZoom})`;
                     label.style.boxShadow = originalBoxShadow;
 
-                    // 5. 導出
+                    // 5. 檔案下載
                     const link = document.createElement('a');
-                    link.download = 'Sable_Breton_Label_2800x3360px_UltraHD.png';
+                    link.download = `Sable_Breton_Label_UltraHD.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                 }).catch(err => {
@@ -769,15 +1064,18 @@
 
             const hasLogo = document.getElementById('label-logo-img').src !== "";
 
+            // 動態取得標籤寬度像素以計算精確邊框厚度
+            const currentW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-width')) || 350;
+
             if (preset.hasDoubleFrame) {
                 outerWrapper.className = "outer-border-frame";
                 innerWrapper.className = "inner-border-frame";
-                innerWrapper.style.border = `3px double ${preset.accent}`;
+                innerWrapper.style.border = `calc(${currentW}px * 0.008) double ${preset.accent}`;
                 if (!hasLogo) crest.style.display = 'block';
             } else {
                 outerWrapper.className = "h-full w-full";
                 innerWrapper.className = "h-full w-full p-4 flex flex-col justify-between box-sizing-border";
-                innerWrapper.style.border = `2px ${presetKey === 'rustic' ? 'dashed' : 'solid'} ${preset.accent}`;
+                innerWrapper.style.border = `calc(${currentW}px * 0.005) ${presetKey === 'rustic' ? 'dashed' : 'solid'} ${preset.accent}`;
                 crest.style.display = 'none';
             }
 
@@ -785,15 +1083,38 @@
             updateLabelText();
         }
 
-        // 直接調用瀏覽器 PDF 列印 (將 350x420px 畫布完美微縮到 50x60mm 紙型)
+        // ================= 🎯 【印刷安全】列印與實體 PDF 匯出無損套縮 =================
         window.onbeforeprint = function() {
+            const wMm = parseFloat(document.getElementById('input-label-w').value) || 50;
+            const hMm = parseFloat(document.getElementById('input-label-h').value) || 60;
+            
+            // 動態在 Head 注入 @media print 與紙張規格，防止印表機比例跑掉
+            const printStyle = document.getElementById('print-dynamic-style') || document.createElement('style');
+            printStyle.id = 'print-dynamic-style';
+            printStyle.innerHTML = `
+                @media print {
+                    @page {
+                        size: ${wMm}mm ${hMm}mm !important;
+                        margin: 0 !important;
+                    }
+                    html, body, .print-wrapper, #print-label-rendered {
+                        width: ${wMm}mm !important;
+                        height: ${hMm}mm !important;
+                    }
+                }
+            `;
+            document.head.appendChild(printStyle);
+            
             const originalLabel = document.getElementById('printable-label');
             const printContent = originalLabel.cloneNode(true);
             printContent.id = "print-label-rendered";
             
-            // 剝離所有預覽縮放屬性
-            printContent.style.width = "350px";
-            printContent.style.height = "420px";
+            // 列印時，將畫布等比例無損縮小到實體紙型上
+            const currentW = originalLabel.offsetWidth || 350;
+            printContent.style.width = `${currentW}px`;
+            printContent.style.height = `${(hMm / wMm) * currentW}px`;
+            printContent.style.transform = `scale(calc(${wMm}mm / ${currentW}px))`;
+            printContent.style.transformOrigin = "top left";
             printContent.style.boxShadow = "none";
             printContent.style.margin = "0";
 
@@ -803,13 +1124,43 @@
         };
 
         window.addEventListener('DOMContentLoaded', () => {
-            // 載入視覺縮放比例快取
-            const cachedZoom = localStorage.getItem('sable-label-preview-zoom-v2.3');
+            // 【安全修復】監聽 Logo 上傳
+            // 將事件監聽器包裹於 DOMContentLoaded 之中，並加上 existence 判斷，確保不會在 DOM 未組裝完成時拋出 Null 引用錯誤
+            const inputLogo = document.getElementById('input-logo');
+            if (inputLogo) {
+                inputLogo.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const logoImg = document.getElementById('label-logo-img');
+                            logoImg.src = event.target.result;
+                            
+                            document.getElementById('logo-container').classList.remove('hidden');
+                            document.getElementById('decor-crest').classList.add('hidden');
+                            document.getElementById('logo-slider-group').classList.remove('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // 【新增】監聽備份 JSON 的匯入
+            const inputImportJson = document.getElementById('input-import-json');
+            if (inputImportJson) {
+                inputImportJson.addEventListener('change', importProfilesFromJSON);
+            }
+
+            // 讀取縮放快取
+            const cachedZoom = localStorage.getItem('sable-label-preview-zoom-v3');
             if (cachedZoom) {
                 const zoomVal = parseFloat(cachedZoom);
                 document.getElementById('preview-zoom-slider').value = zoomVal;
                 updatePreviewZoom(zoomVal);
             }
+            
+            loadAllProfiles();
+            onDimensionChange();
             applyPreset('royal');
         });
     </script>
