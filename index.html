@@ -4,25 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sablé Breton 專業食品標籤設計器 3.0 Pro (固定預覽優化版)</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts 藝術與專業字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     
+    <!-- 引入 html2canvas 用於匯出圖片 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- 引入 qrcode.js 用於動態生成 QR Code -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         /* 核心樣式：鎖定固定畫布大小，預防一切因瀏覽器自動計算導致的變形 */
         :root {
-            --label-bg: #FCFAF6;
+            --label-bg: #FFFFFF; /* 【修正】底色鎖定純白 */
             --label-text: #1C2321;
             --label-accent: #A38051;
             --font-scale: 1.0; /* 整體文字縮放 */
             --title-scale: 1.0; /* 標題獨立縮放 */
             --logo-scale: 1.0; /* Logo 獨立縮放 */
             --qr-scale: 1.0; /* QR Code 獨立縮放 */
-            --preview-zoom: 1.0; /* 視覺縮放比例 */
+            --preview-zoom: 0.7; /* 【修正】預設視覺縮放比例降至 70% */
             
             /* 動態標籤寬高尺寸 (預設為 350x420) */
             --label-width: 350px;
@@ -143,15 +147,32 @@
             margin-top: calc(var(--label-width) * var(--allergen-gap)) !important;
             margin-bottom: calc(var(--label-width) * var(--allergen-gap)) !important;
         }
+
+        /* ================= 列印專用樣式 ================= */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-wrapper {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
+    <!-- 提示通知 Banner -->
     <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-xl shadow-xl text-xs font-semibold tracking-wide transition-all duration-300 opacity-0 pointer-events-none z-[999]">
         設定儲存成功！
     </div>
 
-    <header class="bg-white border-b border-slate-200 py-3 px-4 sticky top-0 z-50 shadow-sm">
+    <!-- 頂部控制列 -->
+    <header class="no-print bg-white border-b border-slate-200 py-3 px-4 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
                 <div class="p-1.5 bg-amber-50 rounded-lg text-amber-700 hidden sm:block">
@@ -160,8 +181,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-sm font-bold text-slate-900 leading-tight">Sablé Breton 標籤設計器 3.0</h1>
-                    <p class="text-[10px] text-slate-500 hidden sm:block">手機優化 • 固定預覽版</p>
+                    <h1 class="text-sm font-bold text-slate-900 leading-tight">Sablé Breton 專業標籤設計器 3.0 Pro</h1>
+                    <p class="text-[10px] text-slate-500 hidden sm:block">極致置頂預覽版 • 鎖定 FFFFFF 純白紙張</p>
                 </div>
             </div>
             
@@ -174,15 +195,16 @@
         </div>
     </header>
 
+    <!-- 主要操作與預覽區 -->
     <main class="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-4 lg:p-6 flex flex-col gap-4">
         
-        <section class="w-full flex flex-col items-center justify-start gap-4">
-            
-            <div class="w-full flex flex-col md:flex-row gap-4 items-stretch">
-                <div id="label-viewport" class="flex-1 flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-2xl min-h-[440px] overflow-hidden p-4 relative">
-                    
-                    <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 1.0)); transform-origin: center center; transition: transform 0.1s ease-out;">
-                        
+        <!-- 【優化】將預覽視窗與校準儀設為常駐置頂浮動 (手機端極其流暢) -->
+        <section class="w-full sticky top-[49px] md:top-[60px] z-40 bg-slate-50/95 backdrop-blur-md py-3 shadow-md -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-2xl border-b md:border border-slate-200">
+            <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-center">
+                
+                <!-- 標籤可視窗口 (高度自適應，縮小至 70% 避免手機擋住內容) -->
+                <div id="label-viewport" class="w-full max-w-[360px] flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-2xl min-h-[320px] max-h-[340px] md:min-h-[360px] overflow-hidden p-2 relative shadow-inner">
+                    <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 0.7)); transform-origin: center center; transition: transform 0.1s ease-out;">
                         <div id="printable-label" class="label-preview-container">
                             <div id="outer-border-wrapper" class="outer-border-frame">
                                 <div id="inner-border-wrapper" class="inner-border-frame">
@@ -250,36 +272,39 @@
                     </div>
                 </div>
 
-                <div class="w-full md:w-60 bg-white rounded-2xl border border-slate-200 p-3 shadow-sm flex flex-col justify-between gap-2">
+                <!-- 尺規校準盒 (手機上與預覽盒並排縮小) -->
+                <div class="w-full max-w-[360px] md:w-60 bg-white rounded-2xl border border-slate-200 p-3 shadow-sm flex flex-col justify-between gap-2">
                     <div>
                         <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 mb-1.5">
                             <span class="text-xs font-bold text-slate-700">🔍 預覽縮放 / 尺規校準</span>
-                            <span id="zoom-factor" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">100%</span>
+                            <span id="zoom-factor" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">70%</span>
                         </div>
-                        <p class="text-slate-500 text-[10px] leading-relaxed mb-2">
+                        <p class="text-slate-500 text-[10px] leading-relaxed mb-2 hidden md:block">
                             螢幕與實物 1:1 調校：拿直尺貼在螢幕上，使藍條長度等於 3 公分。
                         </p>
                         
                         <div class="flex flex-col gap-1.5">
-                            <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="1.0" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updatePreviewZoom(this.value)">
+                            <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="0.70" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updatePreviewZoom(this.value)">
                             <div class="flex justify-between">
                                 <button onclick="adjustPreviewZoom(-0.05)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-semibold text-[10px]">-5%</button>
-                                <button onclick="updatePreviewZoom(1.0); document.getElementById('preview-zoom-slider').value = 1.0;" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-600">重設</button>
+                                <button onclick="updatePreviewZoom(0.70); document.getElementById('preview-zoom-slider').value = 0.70;" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-600">重設 70%</button>
                                 <button onclick="adjustPreviewZoom(0.05)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-semibold text-[10px]">+5%</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="text-center bg-slate-50 p-2 rounded-xl border border-slate-100 shadow-inner">
-                        <div id="calibration-line" class="h-2.5 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--preview-zoom, 1.0));"></div>
+                    <div class="text-center bg-slate-50 p-1.5 rounded-xl border border-slate-100 shadow-inner">
+                        <div id="calibration-line" class="h-2.5 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--preview-zoom, 0.7));"></div>
                         <span class="text-[9px] text-slate-500 mt-1 block font-bold leading-tight">📏 藍條長 = 實體尺 3 公分</span>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- 下方表單與微調控制面板 -->
         <section class="w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6 flex flex-col gap-5">
             
+            <!-- 比例調校面板 -->
             <div class="w-full bg-slate-50/50 rounded-xl border border-slate-200 p-4 flex flex-col gap-4">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                     <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -334,6 +359,7 @@
                 </div>
             </div>
 
+            <!-- 多配方 Profile 管理與 JSON 匯入出 -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                 <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                     📁 標籤多存檔管理 (Label Profiles)
@@ -366,6 +392,7 @@
                 </div>
             </div>
 
+            <!-- 實體毫米尺寸 Dimentions -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">標籤紙張實體尺寸 (Dimentions)</h2>
                 
@@ -388,6 +415,7 @@
                 </div>
             </div>
 
+            <!-- 自訂 Logo 與 QR Code -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">自訂上傳商標與動態 QR 碼</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -408,20 +436,21 @@
                 </div>
             </div>
 
+            <!-- 風格選擇 Presets (底色設定寫死為 #FFFFFF) -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">選擇設計風格 Presets</h2>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="applyPreset('royal')" class="p-2.5 text-left border rounded-xl hover:border-amber-400 focus:outline-none transition-all bg-amber-50/20 border-amber-200">
                         <span class="block text-xs font-bold text-amber-900">巴黎皇室</span>
-                        <span class="block text-[10px] text-amber-700">經典象牙白與雙金線</span>
+                        <span class="block text-[10px] text-amber-700">經典雙金線框</span>
                     </button>
                     <button onclick="applyPreset('rustic')" class="p-2.5 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
                         <span class="block text-xs font-bold text-slate-800">手作烘焙</span>
-                        <span class="block text-[10px] text-slate-500">牛皮紙復古感</span>
+                        <span class="block text-[10px] text-slate-500">質感虛線邊框</span>
                     </button>
                     <button onclick="applyPreset('modern')" class="p-2.5 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
                         <span class="block text-xs font-bold text-slate-800">北歐極簡</span>
-                        <span class="block text-[10px] text-slate-500">俐落黑白時尚風</span>
+                        <span class="block text-[10px] text-slate-500">俐落黑單線時尚風</span>
                     </button>
                     <button onclick="applyPreset('vintage')" class="p-2.5 text-left border rounded-xl hover:border-slate-400 focus:outline-none transition-all border-slate-200">
                         <span class="block text-xs font-bold text-emerald-900">莊園復古</span>
@@ -430,6 +459,7 @@
                 </div>
             </div>
 
+            <!-- 標籤文字與資訊編輯 -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">標籤文字與資訊編輯</h2>
                 
@@ -476,9 +506,10 @@
                 </div>
             </div>
 
+            <!-- 自訂字體與邊框色系 (已移除底紙顏色選單) -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">自訂色彩與主字體</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 mb-1">標題字體</label>
                         <select id="select-font-title" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs bg-white" onchange="updateStyles()">
@@ -486,15 +517,6 @@
                             <option value="'Playfair Display', serif">Playfair (典雅襯線)</option>
                             <option value="'Montserrat', sans-serif">Montserrat (現代無襯線)</option>
                             <option value="Georgia, serif">Georgia (傳統復古)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">底紙顏色</label>
-                        <select id="select-bg-color" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs bg-white" onchange="updateStyles()">
-                            <option value="#FCFAF6">皇家象牙白 (#FCFAF6)</option>
-                            <option value="#FFFFFF">純淨極簡白 (#FFFFFF)</option>
-                            <option value="#E8DBC5">烘焙復古褐 (#E8DBC5)</option>
-                            <option value="#F1F5F9">高雅淺灰藍 (#F1F5F9)</option>
                         </select>
                     </div>
                     <div>
@@ -511,10 +533,14 @@
         </section>
     </main>
 
+    <!-- 隱藏的列印中介容器 -->
+    <div class="hidden print-wrapper">
+        <div id="print-area"></div>
+    </div>
+
     <script>
         const PRESETS = {
             royal: {
-                bg: '#FCFAF6',
                 accent: '#A38051',
                 text: '#1C2321',
                 titleFont: "'Cinzel', serif",
@@ -522,7 +548,6 @@
                 crestDisplay: 'block'
             },
             rustic: {
-                bg: '#E8DBC5',
                 accent: '#473C2A',
                 text: '#2B2318',
                 titleFont: "Georgia, serif",
@@ -530,7 +555,6 @@
                 crestDisplay: 'none'
             },
             modern: {
-                bg: '#FFFFFF',
                 accent: '#111111',
                 text: '#111111',
                 titleFont: "'Montserrat', sans-serif",
@@ -538,7 +562,6 @@
                 crestDisplay: 'none'
             },
             vintage: {
-                bg: '#F3EFE9',
                 accent: '#4F5D4B',
                 text: '#2F3E2D',
                 titleFont: "'Playfair Display', serif",
@@ -737,7 +760,7 @@
             reader.readAsText(file);
         }
 
-        // 擷取當前所有 Input 與樣式狀態
+        // 擷取當前所有 Input 與樣式狀態 (強制底紙鎖定白色)
         function captureStateData() {
             return {
                 title: document.getElementById('input-title').value,
@@ -748,7 +771,7 @@
                 bbDate: document.getElementById('input-bb-date').value,
                 maker: document.getElementById('input-maker').value,
                 fontTitle: document.getElementById('select-font-title').value,
-                bgColor: document.getElementById('select-bg-color').value,
+                bgColor: "#FFFFFF", // 強制寫死純白
                 accentColor: document.getElementById('select-accent-color').value,
                 labelW: document.getElementById('input-label-w').value,
                 labelH: document.getElementById('input-label-h').value,
@@ -772,7 +795,6 @@
             document.getElementById('input-bb-date').value = data.bbDate || "";
             document.getElementById('input-maker').value = data.maker || "";
             document.getElementById('select-font-title').value = data.fontTitle || "'Cinzel', serif";
-            document.getElementById('select-bg-color').value = data.bgColor || "#FCFAF6";
             document.getElementById('select-accent-color').value = data.accentColor || "#A38051";
             document.getElementById('input-label-w').value = data.labelW || 50;
             document.getElementById('input-label-h').value = data.labelH || 60;
@@ -901,7 +923,7 @@
             const label = document.getElementById('printable-label');
             const pivot = document.getElementById('label-scale-pivot');
 
-            const currentZoom = parseFloat(document.getElementById('preview-zoom-slider').value) || 1.0;
+            const currentZoom = parseFloat(document.getElementById('preview-zoom-slider').value) || 0.70;
             const originalBoxShadow = label.style.boxShadow;
 
             pivot.style.transform = 'none';
@@ -954,14 +976,13 @@
         function updateStyles() {
             const root = document.documentElement;
             const fontTitle = document.getElementById('select-font-title').value;
-            const bgColor = document.getElementById('select-bg-color').value;
             const accentColor = document.getElementById('select-accent-color').value;
 
-            root.style.setProperty('--label-bg', bgColor);
+            root.style.setProperty('--label-bg', '#FFFFFF'); // 鎖定純白背景
             root.style.setProperty('--label-accent', accentColor);
 
             const label = document.getElementById('printable-label');
-            label.style.backgroundColor = bgColor;
+            label.style.backgroundColor = '#FFFFFF'; // 鎖定純白背景
             document.getElementById('label-title').style.fontFamily = fontTitle;
         }
 
@@ -971,12 +992,11 @@
             if (!preset) return;
 
             const root = document.documentElement;
-            root.style.setProperty('--label-bg', preset.bg);
+            root.style.setProperty('--label-bg', '#FFFFFF'); // 強制白色
             root.style.setProperty('--label-accent', preset.accent);
             root.style.setProperty('--label-text', preset.text);
 
             document.getElementById('select-font-title').value = preset.titleFont;
-            document.getElementById('select-bg-color').value = preset.bg;
             document.getElementById('select-accent-color').value = preset.accent;
 
             const outerWrapper = document.getElementById('outer-border-wrapper');
@@ -1029,13 +1049,11 @@
                 inputImportJson.addEventListener('change', importProfilesFromJSON);
             }
 
-            // 讀取縮放快取
+            // 讀取縮放快取 (若無則預設採用 70% 比例)
             const cachedZoom = localStorage.getItem('sable-label-preview-zoom-v3');
-            if (cachedZoom) {
-                const zoomVal = parseFloat(cachedZoom);
-                document.getElementById('preview-zoom-slider').value = zoomVal;
-                updatePreviewZoom(zoomVal);
-            }
+            const zoomVal = cachedZoom ? parseFloat(cachedZoom) : 0.70;
+            document.getElementById('preview-zoom-slider').value = zoomVal;
+            updatePreviewZoom(zoomVal);
             
             loadAllProfiles();
             onDimensionChange();
