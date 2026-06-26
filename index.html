@@ -32,7 +32,7 @@
             --label-width: 350px;
             --label-height: 420px;
             --allergen-gap: 0.015; /* 成分與過敏原間距系數 */
-            --viewport-height: 320px; /* 【新增】視窗初始預設高度 */
+            --viewport-height: 320px; /* 視窗初始預設高度 */
         }
 
         /* 標籤預覽容器：寬高由 JS 動態設定 */
@@ -156,6 +156,19 @@
             max-height: var(--viewport-height) !important;
         }
 
+        /* 【新增】垂直滑桿客製化 CSS 樣式 */
+        .vertical-slider {
+            -webkit-appearance: slider-vertical; /* Webkit (Chrome/Safari) */
+            writing-mode: vertical-lr;           /* Firefox & Standard */
+            direction: rtl;                      /* 讓底部為最小值，頂部為最大值 */
+            height: 80px;
+            width: 14px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            outline: none;
+        }
+
         /* ================= 列印專用樣式 ================= */
         @media print {
             .no-print {
@@ -190,7 +203,7 @@
                 </div>
                 <div>
                     <h1 class="text-sm font-bold text-slate-900 leading-tight">Sablé Breton 專業標籤設計器 3.0 Pro</h1>
-                    <p class="text-[10px] text-slate-500 hidden sm:block">極致置頂預覽版 • 鎖定 FFFFFF 純白紙張</p>
+                    <p class="text-[10px] text-slate-500 hidden sm:block">置頂預覽版 • 鎖定 FFFFFF 純白紙張</p>
                 </div>
             </div>
             
@@ -206,12 +219,35 @@
     <!-- 主要操作與預覽區 -->
     <main class="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-4 lg:p-6 flex flex-col gap-4">
         
-        <!-- 【優化】將預覽視窗與校準儀設為常駐置頂浮動 (手機端極其流暢) -->
+        <!-- 【常駐置頂浮動面板】(優化為水平左右對稱雙欄，節省高達 50% 垂直高度！) -->
         <section class="w-full sticky top-[45px] md:top-[60px] z-40 bg-slate-50/95 backdrop-blur-md pt-3 shadow-md -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-t-2xl border-b md:border border-slate-200">
-            <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-center pb-2">
+            <div class="max-w-4xl mx-auto flex flex-row gap-3 items-center justify-center pb-2 w-full">
                 
-                <!-- 標籤可視窗口 (支援動態拖曳高度改變) -->
-                <div id="label-viewport" class="w-full max-w-[360px] flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden p-2 relative shadow-inner">
+                <!-- 【修正】精簡垂直縮放控制盒：與按鈕水平並列，極致慳位 -->
+                <div class="flex flex-col justify-center gap-1.5 bg-white rounded-xl border border-slate-200 p-2 shadow-sm w-[115px] shrink-0 text-center self-stretch justify-around">
+                    <div class="flex flex-col items-center">
+                        <span class="text-[9px] font-bold text-slate-500 leading-none">🔍 預覽縮放</span>
+                        <span id="zoom-factor" class="text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded-full mt-1">70%</span>
+                    </div>
+                    
+                    <!-- 【核心修正】垂直 Slider 與極小直立按鈕並排 -->
+                    <div class="flex flex-row items-center justify-center gap-2.5 my-1">
+                        <!-- 垂直滑桿 -->
+                        <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="0.70" class="vertical-slider" oninput="updatePreviewZoom(this.value)">
+                        
+                        <!-- 垂直按鈕堆疊 -->
+                        <div class="flex flex-col gap-1 shrink-0">
+                            <button onclick="adjustPreviewZoom(0.05)" class="p-1 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 rounded text-slate-800 font-bold text-[9px] border border-slate-200/60 leading-none w-10">+</button>
+                            <button onclick="updatePreviewZoom(0.70); document.getElementById('preview-zoom-slider').value = 0.70;" class="p-1 bg-slate-50 hover:bg-slate-100 rounded text-slate-600 font-bold text-[8px] border border-slate-200/60 leading-none w-10">重設</button>
+                            <button onclick="adjustPreviewZoom(-0.05)" class="p-1 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 rounded text-slate-800 font-bold text-[9px] border border-slate-200/60 leading-none w-10">-</button>
+                        </div>
+                    </div>
+                    
+                    <span class="text-[8px] text-slate-400 leading-none">可上下拉動</span>
+                </div>
+
+                <!-- 標籤可視窗口 (右側) -->
+                <div id="label-viewport" class="flex-1 max-w-[280px] sm:max-w-[350px] flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden p-2 relative shadow-inner">
                     <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 0.7)); transform-origin: center center; transition: transform 0.1s ease-out;">
                         <div id="printable-label" class="label-preview-container">
                             <div id="outer-border-wrapper" class="outer-border-frame">
@@ -280,38 +316,12 @@
                     </div>
                 </div>
 
-                <!-- 尺規校準盒 (與預覽盒子並排) -->
-                <div class="w-full max-w-[360px] md:w-60 bg-white rounded-2xl border border-slate-200 p-3 shadow-sm flex flex-col justify-between gap-2">
-                    <div>
-                        <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 mb-1.5">
-                            <span class="text-xs font-bold text-slate-700">🔍 預覽縮放 / 尺規校準</span>
-                            <span id="zoom-factor" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">70%</span>
-                        </div>
-                        <p class="text-slate-500 text-[10px] leading-relaxed mb-2 hidden md:block">
-                            螢幕與實物 1:1 調校：拿直尺貼在螢幕上，使藍條長度等於 3 公分。
-                        </p>
-                        
-                        <div class="flex flex-col gap-1.5">
-                            <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="0.70" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updatePreviewZoom(this.value)">
-                            <div class="flex justify-between">
-                                <button onclick="adjustPreviewZoom(-0.05)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-semibold text-[10px]">-5%</button>
-                                <button onclick="updatePreviewZoom(0.70); document.getElementById('preview-zoom-slider').value = 0.70;" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-600">重設 70%</button>
-                                <button onclick="adjustPreviewZoom(0.05)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded text-slate-800 font-semibold text-[10px]">+5%</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-center bg-slate-50 p-1.5 rounded-xl border border-slate-100 shadow-inner">
-                        <div id="calibration-line" class="h-2.5 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--preview-zoom, 0.7));"></div>
-                        <span class="text-[9px] text-slate-500 mt-1 block font-bold leading-tight">📏 藍條長 = 實體尺 3 公分</span>
-                    </div>
-                </div>
             </div>
 
-            <!-- 【新增】極致直觀的上下拖拽自訂高度控制條 -->
+            <!-- ↕️ 上下拖拽高度控制條 -->
             <div id="viewport-drag-handle" class="no-print h-6 flex items-center justify-center cursor-row-resize select-none bg-slate-100 hover:bg-slate-200 active:bg-amber-100 border-t border-slate-200 mt-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-b-2xl transition-all">
                 <div class="flex items-center gap-1.5">
-                    <span class="text-[10px] font-bold text-slate-400 tracking-wider">↕️ 按住上下拖曳，自訂預覽視窗高度</span>
+                    <span class="text-[10px] font-bold text-slate-400 tracking-wider">↕️ 按住上下拖曳預覽高度</span>
                     <div class="w-8 h-1 bg-slate-300 rounded-full"></div>
                 </div>
             </div>
@@ -1038,46 +1048,6 @@
             document.getElementById('label-title').style.fontFamily = preset.titleFont;
             updateLabelText();
         }
-
-        // ================= 🎯 【印刷安全】列印與實體 PDF 匯出無損套縮 =================
-        window.onbeforeprint = function() {
-            const wMm = parseFloat(document.getElementById('input-label-w').value) || 50;
-            const hMm = parseFloat(document.getElementById('input-label-h').value) || 60;
-            
-            // 動態在 Head 注入 @media print 與紙張規格，防止印表機比例跑掉
-            const printStyle = document.getElementById('print-dynamic-style') || document.createElement('style');
-            printStyle.id = 'print-dynamic-style';
-            printStyle.innerHTML = `
-                @media print {
-                    @page {
-                        size: ${wMm}mm ${hMm}mm !important;
-                        margin: 0 !important;
-                    }
-                    html, body, .print-wrapper, #print-label-rendered {
-                        width: ${wMm}mm !important;
-                        height: ${hMm}mm !important;
-                    }
-                }
-            `;
-            document.head.appendChild(printStyle);
-            
-            const originalLabel = document.getElementById('printable-label');
-            const printContent = originalLabel.cloneNode(true);
-            printContent.id = "print-label-rendered";
-            
-            // 列印時，將畫布等比例無損縮小到實體紙型上
-            const currentW = originalLabel.offsetWidth || 350;
-            printContent.style.width = `${currentW}px`;
-            printContent.style.height = `${(hMm / wMm) * currentW}px`;
-            printContent.style.transform = `scale(calc(${wMm}mm / ${currentW}px))`;
-            printContent.style.transformOrigin = "top left";
-            printContent.style.boxShadow = "none";
-            printContent.style.margin = "0";
-
-            const wrapper = document.getElementById('print-area');
-            wrapper.innerHTML = '';
-            wrapper.appendChild(printContent);
-        };
 
         window.addEventListener('DOMContentLoaded', () => {
             // 監聽 Logo 上傳
