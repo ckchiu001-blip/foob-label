@@ -19,19 +19,20 @@
     <style>
         /* 核心樣式：鎖定固定畫布大小，預防一切因瀏覽器自動計算導致的變形 */
         :root {
-            --label-bg: #FFFFFF; /* 【修正】底色鎖定純白 */
+            --label-bg: #FFFFFF; /* 底色鎖定純白 */
             --label-text: #1C2321;
             --label-accent: #A38051;
             --font-scale: 1.0; /* 整體文字縮放 */
             --title-scale: 1.0; /* 標題獨立縮放 */
             --logo-scale: 1.0; /* Logo 獨立縮放 */
             --qr-scale: 1.0; /* QR Code 獨立縮放 */
-            --preview-zoom: 0.7; /* 【修正】預設視覺縮放比例降至 70% */
+            --preview-zoom: 0.7; /* 預設視覺縮放比例降至 70% */
             
             /* 動態標籤寬高尺寸 (預設為 350x420) */
             --label-width: 350px;
             --label-height: 420px;
             --allergen-gap: 0.015; /* 成分與過敏原間距系數 */
+            --viewport-height: 320px; /* 【新增】視窗初始預設高度 */
         }
 
         /* 標籤預覽容器：寬高由 JS 動態設定 */
@@ -148,6 +149,13 @@
             margin-bottom: calc(var(--label-width) * var(--allergen-gap)) !important;
         }
 
+        /* 預覽視窗大小控管 */
+        #label-viewport {
+            height: var(--viewport-height) !important;
+            min-height: var(--viewport-height) !important;
+            max-height: var(--viewport-height) !important;
+        }
+
         /* ================= 列印專用樣式 ================= */
         @media print {
             .no-print {
@@ -176,7 +184,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
                 <div class="p-1.5 bg-amber-50 rounded-lg text-amber-700 hidden sm:block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
                     </svg>
                 </div>
@@ -199,11 +207,11 @@
     <main class="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-4 lg:p-6 flex flex-col gap-4">
         
         <!-- 【優化】將預覽視窗與校準儀設為常駐置頂浮動 (手機端極其流暢) -->
-        <section class="w-full sticky top-[49px] md:top-[60px] z-40 bg-slate-50/95 backdrop-blur-md py-3 shadow-md -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-2xl border-b md:border border-slate-200">
-            <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-center">
+        <section class="w-full sticky top-[45px] md:top-[60px] z-40 bg-slate-50/95 backdrop-blur-md pt-3 shadow-md -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-t-2xl border-b md:border border-slate-200">
+            <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-center pb-2">
                 
-                <!-- 標籤可視窗口 (高度自適應，縮小至 70% 避免手機擋住內容) -->
-                <div id="label-viewport" class="w-full max-w-[360px] flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-2xl min-h-[320px] max-h-[340px] md:min-h-[360px] overflow-hidden p-2 relative shadow-inner">
+                <!-- 標籤可視窗口 (支援動態拖曳高度改變) -->
+                <div id="label-viewport" class="w-full max-w-[360px] flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden p-2 relative shadow-inner">
                     <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 0.7)); transform-origin: center center; transition: transform 0.1s ease-out;">
                         <div id="printable-label" class="label-preview-container">
                             <div id="outer-border-wrapper" class="outer-border-frame">
@@ -272,7 +280,7 @@
                     </div>
                 </div>
 
-                <!-- 尺規校準盒 (手機上與預覽盒並排縮小) -->
+                <!-- 尺規校準盒 (與預覽盒子並排) -->
                 <div class="w-full max-w-[360px] md:w-60 bg-white rounded-2xl border border-slate-200 p-3 shadow-sm flex flex-col justify-between gap-2">
                     <div>
                         <div class="flex justify-between items-center border-b border-slate-100 pb-1.5 mb-1.5">
@@ -297,6 +305,14 @@
                         <div id="calibration-line" class="h-2.5 bg-blue-600 rounded mx-auto transition-all" style="width: calc(30mm * var(--preview-zoom, 0.7));"></div>
                         <span class="text-[9px] text-slate-500 mt-1 block font-bold leading-tight">📏 藍條長 = 實體尺 3 公分</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- 【新增】極致直觀的上下拖拽自訂高度控制條 -->
+            <div id="viewport-drag-handle" class="no-print h-6 flex items-center justify-center cursor-row-resize select-none bg-slate-100 hover:bg-slate-200 active:bg-amber-100 border-t border-slate-200 mt-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-b-2xl transition-all">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold text-slate-400 tracking-wider">↕️ 按住上下拖曳，自訂預覽視窗高度</span>
+                    <div class="w-8 h-1 bg-slate-300 rounded-full"></div>
                 </div>
             </div>
         </section>
@@ -973,6 +989,7 @@
             document.getElementById('label-maker').innerHTML = maker;
         }
 
+        // 鎖定純白
         function updateStyles() {
             const root = document.documentElement;
             const fontTitle = document.getElementById('select-font-title').value;
@@ -1022,6 +1039,46 @@
             updateLabelText();
         }
 
+        // ================= 🎯 【印刷安全】列印與實體 PDF 匯出無損套縮 =================
+        window.onbeforeprint = function() {
+            const wMm = parseFloat(document.getElementById('input-label-w').value) || 50;
+            const hMm = parseFloat(document.getElementById('input-label-h').value) || 60;
+            
+            // 動態在 Head 注入 @media print 與紙張規格，防止印表機比例跑掉
+            const printStyle = document.getElementById('print-dynamic-style') || document.createElement('style');
+            printStyle.id = 'print-dynamic-style';
+            printStyle.innerHTML = `
+                @media print {
+                    @page {
+                        size: ${wMm}mm ${hMm}mm !important;
+                        margin: 0 !important;
+                    }
+                    html, body, .print-wrapper, #print-label-rendered {
+                        width: ${wMm}mm !important;
+                        height: ${hMm}mm !important;
+                    }
+                }
+            `;
+            document.head.appendChild(printStyle);
+            
+            const originalLabel = document.getElementById('printable-label');
+            const printContent = originalLabel.cloneNode(true);
+            printContent.id = "print-label-rendered";
+            
+            // 列印時，將畫布等比例無損縮小到實體紙型上
+            const currentW = originalLabel.offsetWidth || 350;
+            printContent.style.width = `${currentW}px`;
+            printContent.style.height = `${(hMm / wMm) * currentW}px`;
+            printContent.style.transform = `scale(calc(${wMm}mm / ${currentW}px))`;
+            printContent.style.transformOrigin = "top left";
+            printContent.style.boxShadow = "none";
+            printContent.style.margin = "0";
+
+            const wrapper = document.getElementById('print-area');
+            wrapper.innerHTML = '';
+            wrapper.appendChild(printContent);
+        };
+
         window.addEventListener('DOMContentLoaded', () => {
             // 監聽 Logo 上傳
             const inputLogo = document.getElementById('input-logo');
@@ -1054,6 +1111,62 @@
             const zoomVal = cachedZoom ? parseFloat(cachedZoom) : 0.70;
             document.getElementById('preview-zoom-slider').value = zoomVal;
             updatePreviewZoom(zoomVal);
+
+            // 讀取高度快取並綁定拖拽事件
+            const viewport = document.getElementById('label-viewport');
+            const dragHandle = document.getElementById('viewport-drag-handle');
+            const savedHeight = localStorage.getItem('sable-viewport-height');
+            
+            if (savedHeight && viewport) {
+                document.documentElement.style.setProperty('--viewport-height', savedHeight + 'px');
+            }
+
+            if (dragHandle && viewport) {
+                let isDragging = false;
+                let startY = 0;
+                let startHeight = 0;
+
+                const startDrag = (e) => {
+                    isDragging = true;
+                    startY = e.clientY || e.touches[0].clientY;
+                    startHeight = viewport.offsetHeight;
+                    dragHandle.classList.add('bg-amber-100');
+                    
+                    document.addEventListener('mousemove', onDrag);
+                    document.addEventListener('touchmove', onDrag, { passive: false });
+                    document.addEventListener('mouseup', stopDrag);
+                    document.addEventListener('touchend', stopDrag);
+                    
+                    if (e.cancelable) e.preventDefault();
+                };
+
+                const onDrag = (e) => {
+                    if (!isDragging) return;
+                    const currentY = e.clientY || e.touches[0].clientY;
+                    const deltaY = currentY - startY;
+                    let newHeight = startHeight + deltaY;
+                    
+                    // 縮放高度邊界：限制在 120px 到 550px 之間
+                    newHeight = Math.max(120, Math.min(550, newHeight));
+                    
+                    document.documentElement.style.setProperty('--viewport-height', newHeight + 'px');
+                    localStorage.setItem('sable-viewport-height', newHeight + 'px');
+                    
+                    if (e.cancelable) e.preventDefault();
+                };
+
+                const stopDrag = () => {
+                    isDragging = false;
+                    dragHandle.classList.remove('bg-amber-100');
+                    document.removeEventListener('mousemove', onDrag);
+                    document.removeEventListener('touchmove', onDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+                    document.removeEventListener('touchend', stopDrag);
+                };
+
+                dragHandle.addEventListener('mousedown', startDrag);
+                dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+            }
             
             loadAllProfiles();
             onDimensionChange();
