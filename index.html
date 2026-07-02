@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sablé Breton 專業食品標籤設計器 3.4 Pro (無損完美導出版)</title>
-    <!-- Tailwind CSS -->
+    <title>Sablé Breton 專業食品標籤設計器 3.3 Pro (無損完美導出版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts 藝術與專業字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     
-    <!-- 引入 html2canvas 用於匯出圖片 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- 引入 qrcode.js 用於動態生成 QR Code -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -254,12 +250,10 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <!-- 提示通知 Banner -->
     <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-xl shadow-xl text-xs font-semibold tracking-wide transition-all duration-300 opacity-0 pointer-events-none z-[999]">
         設定儲存成功！
     </div>
 
-    <!-- 頂部控制列 -->
     <header class="no-print bg-white border-b border-slate-200 py-3 px-4 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
@@ -283,28 +277,22 @@
         </div>
     </header>
 
-    <!-- 主要操作與預覽區 -->
     <main class="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-4 lg:p-6 flex flex-col gap-4">
         
-        <!-- 【常駐置頂浮動面板】 -->
         <section class="w-full sticky top-[45px] md:top-[60px] z-40 bg-slate-50/95 backdrop-blur-md pt-3 shadow-md -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-t-2xl border-b md:border border-slate-200">
             <div class="max-w-4xl mx-auto flex flex-row gap-3 items-stretch justify-center pb-2 w-full px-2">
                 
-                <!-- 極致慳位、超好按的水平置底按鈕控制盒 -->
                 <div class="flex flex-col justify-between items-center bg-white rounded-2xl border border-slate-200 p-2 shadow-sm w-[112px] shrink-0 text-center">
                     
-                    <!-- 頂部縮放數值與標籤 -->
                     <div class="flex flex-col items-center">
                         <span class="text-[9px] font-bold text-slate-400 leading-none">預覽縮放</span>
                         <span id="zoom-factor" class="text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded-full mt-1">70%</span>
                     </div>
                     
-                    <!-- 中央垂直推軌 (已加長、加粗，操控感極佳) -->
                     <div class="flex-1 flex items-center justify-center my-3">
                         <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="0.70" class="vertical-slider" oninput="updatePreviewZoom(this.value)">
                     </div>
                     
-                    <!-- +、重設、- 按鈕變為橫排置底 -->
                     <div class="flex flex-row gap-1 w-full mt-1 shrink-0 items-center justify-center">
                         <button onclick="adjustPreviewZoom(-0.05)" class="h-8 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 rounded-lg text-slate-800 font-extrabold text-xs border border-slate-200/60 flex-1 flex items-center justify-center shadow-sm">-</button>
                         <button onclick="updatePreviewZoom(0.70); document.getElementById('preview-zoom-slider').value = 0.70;" class="h-8 px-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 font-bold text-[8.5px] border border-slate-200/60 flex items-center justify-center shrink-0">重設</button>
@@ -312,7 +300,6 @@
                     </div>
                 </div>
 
-                <!-- 標籤可視窗口 (右側) -->
                 <div id="label-viewport" class="flex-1 max-w-[280px] sm:max-w-[350px] flex items-center justify-center bg-slate-200 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden p-2 relative shadow-inner">
                     <div id="label-scale-pivot" class="absolute flex items-center justify-center overflow-visible" style="transform: scale(var(--preview-zoom, 0.7)); transform-origin: center center; transition: transform 0.1s ease-out;">
                         <div id="printable-label" class="label-preview-container">
@@ -328,7 +315,6 @@
                                             <img id="label-logo-img" src="" alt="Custom Logo" class="max-w-full max-h-full object-contain">
                                         </div>
                                         
-                                        <!-- 標題部分已與整體縮放解耦 -->
                                         <h2 id="label-title" class="dynamic-title font-bold text-center tracking-wide" style="font-family: 'Cinzel', serif; color: var(--label-text);">
                                             ORIGINAL FRENCH SABLÉ BRETON
                                         </h2>
@@ -336,10 +322,8 @@
                                         <div class="dynamic-divider"></div>
                                     </div>
 
-                                    <!-- 中間：成分與過敏警告 -->
                                     <div id="middle-container" class="flex-1 flex flex-col justify-center" style="margin-top: calc(var(--label-width) * var(--top-gap)) !important;">
                                         
-                                        <!-- Ingredients 標題置中，成分靠左貼緊 -->
                                         <div class="w-full text-center">
                                             <div class="dynamic-warning-title font-bold text-slate-900 uppercase tracking-wider text-center block mb-0.5" style="white-space: nowrap !important; width: 100% !important; text-align: center !important;">
                                                 INGREDIENTS:
@@ -347,9 +331,7 @@
                                             <span id="label-ingredients" class="dynamic-body block text-slate-700 font-sans text-center">WHEAT Flour (GLUTEN), BUTTER (MILK) (QUID 30%), Icing Sugar, EGG, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</span>
                                         </div>
                                         
-                                        <!-- 過敏原警告框線 -->
                                         <div class="border-t border-b border-dashed border-slate-300 py-1 text-center" style="margin-top: calc(var(--label-width) * var(--allergen-gap)) !important; margin-bottom: calc(var(--label-width) * var(--netweight-gap)) !important;">
-                                            <!-- ⚠️ 符號與 ALLERGEN WARNING 鎖死同行，並優雅置中 -->
                                             <div class="dynamic-warning-title font-bold text-slate-900 uppercase tracking-wider text-center block" style="white-space: nowrap !important; width: 100% !important; text-align: center !important;">
                                                 ⚠️ ALLERGEN WARNING:
                                             </div>
@@ -358,7 +340,6 @@
                                             </span>
                                         </div>
 
-                                        <!-- 淨重與貯存條件並排展示欄位 -->
                                         <div class="text-center py-0.5 flex flex-wrap justify-center items-center gap-x-2 text-slate-700" style="font-family: 'Inter', sans-serif; margin-bottom: calc(var(--label-width) * var(--footer-gap)) !important;">
                                             <span id="label-storage" class="dynamic-warning-body italic">Store in a cool, dry place.</span>
                                             <span class="text-slate-400">|</span>
@@ -373,21 +354,17 @@
                                             </div>
                                         </div>
 
-                                        <!-- 跟隨並排排版（BEST BEFORE 在左下，PRODUCED BY 在右下） -->
                                         <div class="flex justify-between items-start gap-1 w-full text-slate-800 pb-1 border-b border-slate-100/50">
-                                            <!-- 左下角 Best Before -->
                                             <div class="text-left shrink-0" style="white-space: nowrap !important;">
                                                 <span class="block dynamic-footer-label uppercase">BEST BEFORE:</span>
                                                 <strong id="label-bb-date" class="dynamic-footer-value">21 / 06 / 2026</strong>
                                             </div>
-                                            <!-- 右下角 Produced By -->
                                             <div class="text-right shrink-0" style="white-space: nowrap !important;">
                                                 <span class="block dynamic-footer-label uppercase">PRODUCED BY:</span>
                                                 <strong id="label-maker" class="dynamic-footer-value">A Cooking Day (CH3 6ET)</strong>
                                             </div>
                                         </div>
 
-                                        <!-- 最底端置中獨立地址欄 (Address) -->
                                         <div class="w-full text-center mt-1">
                                             <span id="label-address" class="dynamic-footer-label block text-center italic" style="font-size: max(var(--min-print-font), calc(var(--label-width) * 0.018 * var(--font-scale))) !important;">Factory Address: CH3 6ET, UK</span>
                                         </div>
@@ -401,7 +378,6 @@
 
             </div>
 
-            <!-- ↕️ 上下拖曳高度控制條 -->
             <div id="viewport-drag-handle" class="no-print h-6 flex items-center justify-center cursor-row-resize select-none bg-slate-100 hover:bg-slate-200 active:bg-amber-100 border-t border-slate-200 mt-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-b-2xl transition-all">
                 <div class="flex items-center gap-1.5">
                     <span class="text-[10px] font-bold text-slate-400 tracking-wider">↕️ 按住上下拖曳預覽高度</span>
@@ -410,10 +386,8 @@
             </div>
         </section>
 
-        <!-- 下方表單與微調控制面板 -->
         <section class="w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6 flex flex-col gap-5">
             
-            <!-- 比例與間距無極調校面板 -->
             <div class="w-full bg-slate-50/50 rounded-xl border border-slate-200 p-4 flex flex-col gap-4">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                     <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -426,7 +400,6 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- 全體文字縮放 (改為下限 100%，上限 300%) -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
                             <span>整體內容文字縮放 (All Body Texts) (除主標題外)</span>
@@ -435,7 +408,6 @@
                         <input type="range" id="scale-all" min="1.0" max="3.0" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('all', this.value)">
                     </div>
 
-                    <!-- 主標題獨立比例 -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
                             <span>主標題字體大小 (Product Title Only)</span>
@@ -460,7 +432,6 @@
                         <input type="range" id="scale-qr" min="0.6" max="1.5" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('qr', this.value)">
                     </div>
 
-                    <!-- 標題與內容距離滑桿 -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
                             <span>標題與內容距離 (Title vs Content Spacing)</span>
@@ -469,7 +440,6 @@
                         <input type="range" id="scale-top-gap" min="-0.10" max="0.10" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateTopGap(this.value)">
                     </div>
 
-                    <!-- 成分與過敏警告框距離 -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
                             <span>成分與過敏警告框距離 (Ingredients vs Allergen Spacing)</span>
@@ -478,7 +448,6 @@
                         <input type="range" id="scale-gap" min="0.00" max="0.08" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateAllergenGap(this.value)">
                     </div>
 
-                    <!-- 警告框與淨重/貯存距離 -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
                             <span>警告框與淨重/貯存距離 (Allergen vs Net Weight Spacing)</span>
@@ -487,7 +456,6 @@
                         <input type="range" id="scale-netweight-gap" min="0.00" max="0.08" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateNetweightGap(this.value)">
                     </div>
 
-                    <!-- 淨重/貯存與底部欄距離 -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
                             <span>淨重/貯存與底部欄距離 (Net Weight vs Footer Spacing)</span>
@@ -497,7 +465,6 @@
                     </div>
                 </div>
 
-                <!-- 物理字高計算儀：即時精確換算 1.2mm 食品法律防守底限 -->
                 <div class="mt-2 bg-emerald-50 border border-emerald-150 p-3.5 rounded-xl text-xs text-emerald-950 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div class="flex-1">
                         <p class="font-extrabold flex items-center gap-1.5 text-[13px] text-emerald-900">
@@ -517,13 +484,11 @@
                 </div>
             </div>
 
-            <!-- 多配方 Profile 管理與 JSON 匯入出 (已整合 Google Sheets 雲端連線) -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                 <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center justify-between">
                     <span class="flex items-center gap-1.5">
                         📁 標籤多存檔管理 (Label Profiles)
                     </span>
-                    <!-- 雲端連線指示燈 -->
                     <span id="cloud-status-indicator" class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60">
                         ⏳ 雲端同步連線中...
                     </span>
@@ -559,7 +524,6 @@
                 </div>
             </div>
 
-            <!-- 實體毫米尺寸 Dimentions -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">標籤紙張實體尺寸 (Dimentions)</h2>
                 
@@ -582,7 +546,6 @@
                 </div>
             </div>
 
-            <!-- 自訂 Logo 與 QR Code -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">自訂上傳商標與動態 QR 碼</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -603,7 +566,6 @@
                 </div>
             </div>
 
-            <!-- 風格選擇 Presets -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">選擇設計風格 Presets</h2>
                 <div class="grid grid-cols-2 gap-2">
@@ -626,18 +588,15 @@
                 </div>
             </div>
 
-            <!-- 標籤文字與資訊編輯 -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">標籤文字與資訊編輯</h2>
                 
                 <div class="space-y-3">
-                    <!-- 主標題 -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">主標題 (Title) (支援按 Enter 鍵換行)</label>
                         <textarea id="input-title" rows="2" class="custom-textarea" oninput="updateLabelText()">ORIGINAL FRENCH SABLÉ BRETON</textarea>
                     </div>
 
-                    <!-- 配方成分 -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-[11px] font-semibold text-slate-500">產品配方與成分 (支援按 Enter 鍵換行)</label>
@@ -646,13 +605,11 @@
                         <textarea id="input-ingredients" rows="3" class="custom-textarea font-mono" oninput="updateLabelText()">**WHEAT** Flour (**GLUTEN**), **BUTTER** (**MILK**) (QUID 30%), Icing Sugar, **EGG**, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</textarea>
                     </div>
 
-                    <!-- 過敏警告 -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">過敏提示警告 (Allergen Warning) (支援按 Enter 鍵換行)</label>
                         <textarea id="input-allergen-warning" rows="2" class="custom-textarea" oninput="updateLabelText()">For allergens, see ingredients listed in BOLD.</textarea>
                     </div>
 
-                    <!-- 淨重與貯存 -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">產品淨重 (Net Weight)</label>
@@ -664,7 +621,6 @@
                         </div>
                     </div>
 
-                    <!-- 日期與製造商 -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">最佳食用日期 (Best Before)</label>
@@ -676,7 +632,6 @@
                         </div>
                     </div>
 
-                    <!-- 製造廠地址欄 -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">製造廠地址 (Factory Address) (支援按 Enter 鍵換行)</label>
                         <textarea id="input-address" rows="2" class="custom-textarea" oninput="updateLabelText()">Factory Address: CH3 6ET, UK</textarea>
@@ -684,7 +639,6 @@
                 </div>
             </div>
 
-            <!-- 自訂字體與邊框色系 -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">自訂色彩與主字體</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -711,7 +665,6 @@
         </section>
     </main>
 
-    <!-- 隱藏的列印中介容器 -->
     <div class="hidden print-wrapper">
         <div id="print-area"></div>
     </div>
@@ -749,7 +702,7 @@
         };
 
         // Google Sheets Apps Script API 端點
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbwRFg2rpb5oURl5iaYgIxG5Eh2JeisnZcFmm1ECTiDL2xQywkNVStzSkLqGmPT7hef6qg/exec";
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbyWtEF7L_yWinpaZ_yOSAFvtBSUNr6l33wfSZddVZoQQc5iscrYfyocc_7B2WtOC-Vsng/exec";
 
         let currentQRText = "";
         let qrGenerator = null;
@@ -837,11 +790,15 @@
                 if (!response.ok) throw new Error("Google Sheets 連線失敗");
                 
                 const cloudData = await response.json();
-                if (Array.isArray(cloudData)) {
-                    const formattedProfiles = {};
-                    cloudData.forEach(row => {
-                        if (row.profileName) {
-                            formattedProfiles[row.profileName] = {
+                const formattedProfiles = {};
+
+                // 【核心對接修正：完美兼容陣列與物件兩種同步回傳資料】
+                if (cloudData && typeof cloudData === 'object' && !Array.isArray(cloudData)) {
+                    // 如果是物件格式 {"經典": {...}}
+                    Object.keys(cloudData).forEach(key => {
+                        const row = cloudData[key];
+                        if (row) {
+                            formattedProfiles[key] = {
                                 title: row.title || "",
                                 ingredients: row.ingredients || "",
                                 allergen: row.allergen || "",
@@ -849,35 +806,68 @@
                                 storage: row.storage || "",
                                 bbDate: row.bbDate || "",
                                 maker: row.maker || "",
-                                address: row.address || "", // 新增地址
-                                fontTitle: "'Cinzel', serif",
+                                address: row.address || row.Address || "",
+                                fontTitle: row.fontTitle || "'Cinzel', serif",
                                 bgColor: "#FFFFFF",
-                                accentColor: "#A38051",
-                                labelW: 50,
-                                labelH: 60,
-                                scaleAll: 1.00,
-                                scaleTitle: 1.00,
-                                scaleLogo: 1.00,
-                                scaleQr: 1.00,
-                                scaleGap: 0.015,
-                                scaleTopGap: 0.015,
-                                scaleNetweightGap: 0.015,
-                                scaleFooterGap: 0.015
+                                accentColor: row.accentColor || "#A38051",
+                                labelW: parseFloat(row.labelW) || 50,
+                                labelH: parseFloat(row.labelH) || 60,
+                                scaleAll: parseFloat(row.scaleAll) || 1.00,
+                                scaleTitle: parseFloat(row.scaleTitle) || 1.00,
+                                scaleLogo: parseFloat(row.scaleLogo) || 1.00,
+                                scaleQr: parseFloat(row.scaleQr) || 1.00,
+                                scaleGap: parseFloat(row.scaleGap) || 0.015,
+                                scaleTopGap: parseFloat(row.scaleTopGap) || 0.015,
+                                scaleNetweightGap: parseFloat(row.scaleNetweightGap) || 0.015,
+                                scaleFooterGap: parseFloat(row.scaleFooterGap) || 0.015,
+                                customLogo: row.customLogo || "",
+                                qrText: row.qrText || ""
                             };
                         }
                     });
-                    
-                    // 合併雲端與本地存檔
-                    localProfiles = Object.assign({}, localProfiles, formattedProfiles);
-                    localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
-                    updateProfileDropdown();
-                    
-                    indicator.innerText = "🟢 雲端數據庫已連線";
-                    indicator.className = "text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60";
-                    showToast("🟢 成功與 Google Sheets 雲端資料庫雙向同步！");
+                } else if (Array.isArray(cloudData)) {
+                    // 如果是傳統陣列格式 [{}, {}]
+                    cloudData.forEach(row => {
+                        const name = row.profileName || row[0];
+                        if (name) {
+                            formattedProfiles[name] = {
+                                title: row.title || "",
+                                ingredients: row.ingredients || "",
+                                allergen: row.allergen || "",
+                                netWeight: row.netWeight || "",
+                                storage: row.storage || "",
+                                bbDate: row.bbDate || "",
+                                maker: row.maker || "",
+                                address: row.address || row.Address || "",
+                                fontTitle: row.fontTitle || "'Cinzel', serif",
+                                bgColor: "#FFFFFF",
+                                accentColor: row.accentColor || "#A38051",
+                                labelW: parseFloat(row.labelW) || 50,
+                                labelH: parseFloat(row.labelH) || 60,
+                                scaleAll: parseFloat(row.scaleAll) || 1.00,
+                                scaleTitle: parseFloat(row.scaleTitle) || 1.00,
+                                scaleLogo: parseFloat(row.scaleLogo) || 1.00,
+                                scaleQr: parseFloat(row.scaleQr) || 1.00,
+                                scaleGap: parseFloat(row.scaleGap) || 0.015,
+                                scaleTopGap: parseFloat(row.scaleTopGap) || 0.015,
+                                scaleNetweightGap: parseFloat(row.scaleNetweightGap) || 0.015,
+                                scaleFooterGap: parseFloat(row.scaleFooterGap) || 0.015,
+                                customLogo: row.customLogo || "",
+                                qrText: row.qrText || ""
+                            };
+                        }
+                    });
                 }
+                
+                // 合併雲端與本地存檔
+                localProfiles = Object.assign({}, localProfiles, formattedProfiles);
+                localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
+                updateProfileDropdown();
+                
+                indicator.innerText = "🟢 雲端數據庫已連線";
+                indicator.className = "text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60";
+                showToast("🟢 成功與 Google Sheets 雲端資料庫雙向同步！");
             } catch (err) {
-                // 【安全修復】改用 console.warn，避免觸發控制台錯誤警告
                 console.warn("雲端同步異常: ", err.message);
                 indicator.innerText = "🔴 本地離線緩存模式";
                 indicator.className = "text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200/60";
@@ -908,7 +898,6 @@
                     body: JSON.stringify(payload)
                 });
             } catch (err) {
-                // 【安全修復】改用 console.warn，避免觸發控制台錯誤警告
                 console.warn("雲端推送異常: ", err.message);
             }
         }
@@ -927,7 +916,6 @@
                     body: JSON.stringify(payload)
                 });
             } catch (err) {
-                // 【安全修復】改用 console.warn，避免觸發控制台錯誤警告
                 console.warn("雲端刪除異常: ", err.message);
             }
         }
@@ -941,7 +929,6 @@
                 localProfiles = {};
             }
             updateProfileDropdown();
-            // 自動嘗試同步雲端數據
             fetchCloudProfiles();
         }
 
@@ -986,7 +973,6 @@
             localProfiles[name] = data;
             localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
             
-            // 同步至 Google Sheet
             saveCloudProfile(name, data);
             
             loadAllProfiles();
@@ -1005,7 +991,6 @@
             localProfiles[selectedName] = data;
             localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
             
-            // 同步至 Google Sheet
             saveCloudProfile(selectedName, data);
             
             showToast(`🔄 已覆蓋更新並同步雲端配方「${selectedName}」！`);
@@ -1030,7 +1015,6 @@
             delete localProfiles[selectedName];
             localStorage.setItem('sable-label-profiles-v3', JSON.stringify(localProfiles));
             
-            // 同步從 Google Sheet 刪除
             deleteCloudProfile(selectedName);
             
             loadAllProfiles();
@@ -1081,7 +1065,6 @@
                     loadAllProfiles();
                     showToast("📥 匯入成功！已將所有配方還原並合併！");
                 } catch (err) {
-                    // 【安全修復】改用 console.warn，避免觸發控制台錯誤警告
                     console.warn("JSON 匯入出錯: ", err.message);
                     showToast("❌ 匯入失敗，請確認是否為正確的備份 JSON 檔案！");
                 }
@@ -1100,7 +1083,7 @@
                 storage: document.getElementById('input-storage').value,       
                 bbDate: document.getElementById('input-bb-date').value,
                 maker: document.getElementById('input-maker').value,
-                address: document.getElementById('input-address').value, // 新增
+                address: document.getElementById('input-address').value,
                 fontTitle: document.getElementById('select-font-title').value,
                 bgColor: "#FFFFFF", 
                 accentColor: document.getElementById('select-accent-color').value,
@@ -1128,7 +1111,7 @@
             document.getElementById('input-storage').value = data.storage || "Store in a cool, dry place."; 
             document.getElementById('input-bb-date').value = data.bbDate || "";
             document.getElementById('input-maker').value = data.maker || "";
-            document.getElementById('input-address').value = data.address || "Factory Address: CH3 6ET, UK"; // 新增
+            document.getElementById('input-address').value = data.address || "Factory Address: CH3 6ET, UK";
             document.getElementById('select-font-title').value = data.fontTitle || "'Cinzel', serif";
             document.getElementById('select-accent-color').value = data.accentColor || "#A38051";
             document.getElementById('input-label-w').value = data.labelW || 50;
@@ -1189,11 +1172,9 @@
                 document.getElementById('qr-scale-num').innerText = `${Math.round(value * 100)}%`;
             }
             
-            // 同步更新字體物理毫米計量
             onDimensionChange();
         }
 
-        // 獨立段落間距無極換算引擎
         function updateAllergenGap(value) {
             const root = document.documentElement;
             root.style.setProperty('--allergen-gap', value);
@@ -1203,7 +1184,6 @@
             document.getElementById('gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
         }
 
-        // 標題與內容距離
         function updateTopGap(value) {
             const root = document.documentElement;
             root.style.setProperty('--top-gap', value);
@@ -1213,7 +1193,6 @@
             document.getElementById('top-gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
         }
 
-        // 警告框與淨重/貯存距離
         function updateNetweightGap(value) {
             const root = document.documentElement;
             root.style.setProperty('--netweight-gap', value);
@@ -1223,7 +1202,6 @@
             document.getElementById('netweight-gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
         }
 
-        // 淨重/貯存與底部欄距離
         function updateFooterGap(value) {
             const root = document.documentElement;
             root.style.setProperty('--footer-gap', value);
@@ -1233,7 +1211,6 @@
             document.getElementById('footer-gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
         }
 
-        // 調整預覽畫面縮放
         function updatePreviewZoom(value) {
             const root = document.documentElement;
             root.style.setProperty('--preview-zoom', value);
@@ -1262,7 +1239,6 @@
             document.getElementById('logo-slider-group').classList.add('hidden');
         }
 
-        // 生成與更新 QR Code
         function updateQRCode(text) {
             currentQRText = text.trim();
             const qrContainerDiv = document.getElementById('qr-container');
@@ -1292,38 +1268,31 @@
             updateQRCode("");
         }
 
-        // ================= 🎯 【印刷安全】最高級別 8 倍超清無損 PNG 導出修正（徹底解鎖限制防止裁切與白邊） =================
+        // ================= 🎯 【印刷安全】最高級別 8 倍超清無損 PNG 導出修正 =================
         function exportLabelAsPNG() {
             const label = document.getElementById('printable-label');
             const pivot = document.getElementById('label-scale-pivot');
 
             const currentZoom = parseFloat(document.getElementById('preview-zoom-slider').value) || 0.70;
             const originalBoxShadow = label.style.boxShadow;
-
-            // 1. 取得置頂視窗容器元素
             const viewport = document.getElementById('label-viewport');
             
-            // 2. 【核心修正】在截圖前，暫時將 viewport 的限制高度解除並允許 overflow 溢出
-            // 這樣能保證 html2canvas 在繪圖時能捕捉到 100% 完整的 label 底部與右下角，完全不會發生文字截斷！
             const originalViewportStyle = viewport.style.cssText;
             viewport.style.height = 'auto';
             viewport.style.minHeight = 'none';
             viewport.style.maxHeight = 'none';
             viewport.style.overflow = 'visible';
 
-            // 3. 移除視覺縮放與陰影，恢復完美 1:1 原生狀態
             pivot.style.transform = 'none';
             label.style.boxShadow = 'none';
 
-            // 4. 延遲 120 毫秒確保 DOM 排版完全展開加載，然後使用 scale: 8 超清重繪
             setTimeout(() => {
                 html2canvas(label, {
-                    scale: 8, // 超高清 8 倍渲染，匯出 2800 x 3360 像素
+                    scale: 8, 
                     useCORS: true,
                     backgroundColor: null, 
                     logging: false
                 }).then(canvas => {
-                    // 5. 下載完成後立刻將網頁預覽樣式完美還原
                     pivot.style.transform = `scale(${currentZoom})`;
                     label.style.boxShadow = originalBoxShadow;
                     viewport.style.cssText = originalViewportStyle;
@@ -1333,7 +1302,6 @@
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                 }).catch(err => {
-                    // 【安全修復】改用 console.warn，避免觸發控制台錯誤警告
                     console.warn("PNG 匯出發生故障: ", err.message);
                     pivot.style.transform = `scale(${currentZoom})`;
                     label.style.boxShadow = originalBoxShadow;
@@ -1342,7 +1310,6 @@
             }, 120);
         }
 
-        // 經典字型與配方更新
         function updateLabelText() {
             const title = document.getElementById('input-title').value;
             const rawIngredients = document.getElementById('input-ingredients').value;
@@ -1351,13 +1318,12 @@
             const storage = document.getElementById('input-storage').value;       
             const bbDate = document.getElementById('input-bb-date').value;
             const maker = document.getElementById('input-maker').value;
-            const address = document.getElementById('input-address').value; // 新增
+            const address = document.getElementById('input-address').value;
 
-            // 清理前後空白與換行
             const cleanTitle = title.trim();
             const cleanIngredients = rawIngredients.trim();
             const cleanWarning = allergenWarning.trim();
-            const cleanAddress = address.trim(); // 新增
+            const cleanAddress = address.trim();
 
             const processedIngredients = cleanIngredients.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--label-text); font-weight: 800;">$1</strong>');
 
@@ -1370,30 +1336,28 @@
             
             document.getElementById('label-bb-date').innerHTML = bbDate;
             document.getElementById('label-maker').innerHTML = maker;
-            document.getElementById('label-address').innerHTML = cleanAddress; // 新增
+            document.getElementById('label-address').innerHTML = cleanAddress;
         }
 
-        // 鎖定純白
         function updateStyles() {
             const root = document.documentElement;
             const fontTitle = document.getElementById('select-font-title').value;
             const accentColor = document.getElementById('select-accent-color').value;
 
-            root.style.setProperty('--label-bg', '#FFFFFF'); // 鎖定純白背景
+            root.style.setProperty('--label-bg', '#FFFFFF'); 
             root.style.setProperty('--label-accent', accentColor);
 
             const label = document.getElementById('printable-label');
-            label.style.backgroundColor = '#FFFFFF'; // 鎖定純白背景
+            label.style.backgroundColor = '#FFFFFF'; 
             document.getElementById('label-title').style.fontFamily = fontTitle;
         }
 
-        // 風格 Presets 切換
         function applyPreset(presetKey) {
             const preset = PRESETS[presetKey];
             if (!preset) return;
 
             const root = document.documentElement;
-            root.style.setProperty('--label-bg', '#FFFFFF'); // 強制白色
+            root.style.setProperty('--label-bg', '#FFFFFF'); 
             root.style.setProperty('--label-accent', preset.accent);
             root.style.setProperty('--label-text', preset.text);
 
@@ -1424,7 +1388,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // 監聽 Logo 上傳
             const inputLogo = document.getElementById('input-logo');
             if (inputLogo) {
                 inputLogo.addEventListener('change', function(e) {
@@ -1444,19 +1407,16 @@
                 });
             }
 
-            // 監聽備份 JSON 的匯入
             const inputImportJson = document.getElementById('input-import-json');
             if (inputImportJson) {
                 inputImportJson.addEventListener('change', importProfilesFromJSON);
             }
 
-            // 讀取縮放快取 (若無則預設採用 70% 比例)
             const cachedZoom = localStorage.getItem('sable-label-preview-zoom-v3');
             const zoomVal = cachedZoom ? parseFloat(cachedZoom) : 0.70;
             document.getElementById('preview-zoom-slider').value = zoomVal;
             updatePreviewZoom(zoomVal);
 
-            // 讀取高度快取並綁定拖拽事件
             const viewport = document.getElementById('label-viewport');
             const dragHandle = document.getElementById('viewport-drag-handle');
             const savedHeight = localStorage.getItem('sable-viewport-height');
@@ -1489,8 +1449,6 @@
                     const currentY = e.clientY || e.touches[0].clientY;
                     const deltaY = currentY - startY;
                     let newHeight = startHeight + deltaY;
-                    
-                    // 縮放高度邊界：限制在 120px 到 550px 之間
                     newHeight = Math.max(120, Math.min(550, newHeight));
                     
                     document.documentElement.style.setProperty('--viewport-height', newHeight + 'px');
