@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sablé Breton 專業食品標籤設計器 3.0 Pro (固定預覽優化版)</title>
+    <title>Sablé Breton 專業食品標籤設計器 3.3 Pro (無損完美導出版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts 藝術與專業字體 -->
@@ -22,7 +22,7 @@
             --label-bg: #FFFFFF; /* 底色鎖定純白 */
             --label-text: #1C2321;
             --label-accent: #A38051;
-            --font-scale: 1.0; /* 整體文字縮放 */
+            --font-scale: 1.0; /* 整體文字縮放 (不包含主標題) */
             --title-scale: 1.0; /* 標題獨立縮放 */
             --logo-scale: 1.0; /* Logo 獨立縮放 */
             --qr-scale: 1.0; /* QR Code 獨立縮放 */
@@ -31,11 +31,19 @@
             /* 動態標籤寬高尺寸 (預設為 350x420) */
             --label-width: 350px;
             --label-height: 420px;
-            --allergen-gap: 0.015; /* 成分與過敏原間距系數 */
             --viewport-height: 320px; /* 視窗初始預設高度 */
+            
+            /* 1.2mm 實體字體物理底線保障變數 */
+            --min-print-font: 8.4px; 
+
+            /* 四大間距控制變數 (預設皆為 0.015) */
+            --top-gap: 0.015;
+            --allergen-gap: 0.015;
+            --netweight-gap: 0.015;
+            --footer-gap: 0.015;
         }
 
-        /* 標籤預覽容器：寬高由 JS 動態設定 */
+        /* 標籤預覽容器 */
         .label-preview-container {
             width: var(--label-width) !important;
             height: var(--label-height) !important;
@@ -48,43 +56,45 @@
 
         /* ==== 絕對安全與比例同型的排版設計 ==== */
         .dynamic-title {
-            font-size: calc(var(--label-width) * 0.06 * var(--font-scale) * var(--title-scale)) !important;
-            line-height: 1.15 !important;
-        }
-        .dynamic-category {
-            font-size: calc(var(--label-width) * 0.034 * var(--font-scale)) !important;
+            font-size: calc(var(--label-width) * 0.06 * var(--title-scale)) !important;
             line-height: 1.2 !important;
-            letter-spacing: 0.08em;
-        }
-        .dynamic-subtitle {
-            font-size: calc(var(--label-width) * 0.028 * var(--font-scale)) !important;
-            line-height: 1.2 !important;
-        }
-        .dynamic-body {
-            font-size: calc(var(--label-width) * 0.024 * var(--font-scale)) !important;
-            line-height: 1.35 !important;
-        }
-        .dynamic-warning-title {
-            font-size: calc(var(--label-width) * 0.022 * var(--font-scale)) !important;
-            line-height: 1.2 !important;
-        }
-        .dynamic-warning-body {
-            font-size: calc(var(--label-width) * 0.021 * var(--font-scale)) !important;
-            line-height: 1.2 !important;
+            white-space: pre-wrap !important;
         }
         
-        /* 將底部小標籤與數值直接綁定主題色，杜絕過淺跑版 */
+        /* 鎖定 1.2mm 法律防守底線 */
+        .dynamic-body {
+            font-size: max(var(--min-print-font), calc(var(--label-width) * 0.024 * var(--font-scale))) !important;
+            line-height: 1.35 !important;
+            white-space: pre-wrap !important;
+            text-align: center !important; /* 確保成分配料字體與標題一樣完美居中 */
+            width: 100% !important;
+            display: block !important;
+        }
+        .dynamic-warning-title {
+            font-size: max(var(--min-print-font), calc(var(--label-width) * 0.022 * var(--font-scale))) !important;
+            line-height: 1.2 !important;
+            white-space: pre-wrap !important;
+        }
+        .dynamic-warning-body {
+            font-size: max(var(--min-print-font), calc(var(--label-width) * 0.021 * var(--font-scale))) !important;
+            line-height: 1.2 !important;
+            white-space: pre-wrap !important;
+        }
+        
+        /* 底部資訊欄 */
         .dynamic-footer-label {
-            font-size: calc(var(--label-width) * 0.018 * var(--font-scale)) !important;
+            font-size: max(var(--min-print-font), calc(var(--label-width) * 0.018 * var(--font-scale))) !important;
             line-height: 1.1 !important;
             color: var(--label-text) !important;
-            opacity: 0.8; 
+            opacity: 0.85; 
+            white-space: pre-wrap !important;
         }
         .dynamic-footer-value {
-            font-size: calc(var(--label-width) * 0.0215 * var(--font-scale)) !important;
+            font-size: max(var(--min-print-font), calc(var(--label-width) * 0.0215 * var(--font-scale))) !important;
             line-height: 1.1 !important;
             color: var(--label-text) !important;
             font-weight: 700 !important;
+            white-space: pre-wrap !important;
         }
 
         /* 邊框與間距 */
@@ -113,7 +123,7 @@
             background-color: var(--label-accent);
         }
 
-        /* 裝飾圖示與自訂 Logo */
+        /* 裝飾圖示 */
         .dynamic-crest {
             height: calc(var(--label-width) * 0.04);
             width: calc(var(--label-width) * 0.04);
@@ -129,7 +139,7 @@
             align-items: center;
         }
 
-        /* QR Code 樣式與縮放 */
+        /* QR Code */
         .qr-wrapper {
             width: calc(var(--label-width) * 0.13 * var(--qr-scale));
             height: calc(var(--label-width) * 0.13 * var(--qr-scale));
@@ -156,17 +166,74 @@
             max-height: var(--viewport-height) !important;
         }
 
-        /* 【新增】垂直滑桿客製化 CSS 樣式 */
+        /* 垂直推軌式滑桿：加長、加粗，並配備超大觸控按鈕 */
         .vertical-slider {
-            -webkit-appearance: slider-vertical; /* Webkit (Chrome/Safari) */
-            writing-mode: vertical-lr;           /* Firefox & Standard */
-            direction: rtl;                      /* 讓底部為最小值，頂部為最大值 */
-            height: 80px;
-            width: 14px;
-            cursor: pointer;
-            background: #e2e8f0;
+            -webkit-appearance: none;
+            appearance: none;
+            writing-mode: vertical-lr;           
+            direction: rtl;                      
+            height: 110px;                       
+            width: 16px;                         
+            background: #e2e8f0;                 
             border-radius: 9999px;
             outline: none;
+            cursor: pointer;
+        }
+
+        /* 訂製滑桿軌道 */
+        .vertical-slider::-webkit-slider-runnable-track {
+            width: 16px;
+            height: 110px;
+            background: #e2e8f0;
+            border-radius: 9999px;
+        }
+
+        /* 極大化滑軌圓鈕：大拇指觸控神器 */
+        .vertical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;                         
+            height: 30px;
+            border-radius: 50%;
+            background: #059669;                 
+            border: 3px solid #ffffff;           
+            box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+            cursor: pointer;
+            margin-top: 0px;                     
+        }
+
+        /* Firefox 兼容性設定 */
+        .vertical-slider::-moz-range-track {
+            width: 16px;
+            height: 110px;
+            background: #e2e8f0;
+            border-radius: 9999px;
+        }
+        .vertical-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #059669;
+            border: 3px solid #ffffff;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+            cursor: pointer;
+        }
+
+        /* 自定義 TextArea 風格 */
+        .custom-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.4;
+            outline: none;
+            resize: vertical;
+            transition: all 0.15s ease-in-out;
+        }
+        .custom-textarea:focus {
+            border-color: #d97706; /* amber-600 */
+            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);
         }
 
         /* ================= 列印專用樣式 ================= */
@@ -202,7 +269,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-sm font-bold text-slate-900 leading-tight">Sablé Breton 專業標籤設計器 3.0 Pro</h1>
+                    <h1 class="text-sm font-bold text-slate-900 leading-tight">Sablé Breton 專業標籤設計器 3.3 Pro</h1>
                     <p class="text-[10px] text-slate-500 hidden sm:block">置頂預覽版 • 鎖定 FFFFFF 純白紙張</p>
                 </div>
             </div>
@@ -219,31 +286,30 @@
     <!-- 主要操作與預覽區 -->
     <main class="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-4 lg:p-6 flex flex-col gap-4">
         
-        <!-- 【常駐置頂浮動面板】(優化為水平左右對稱雙欄，節省高達 50% 垂直高度！) -->
+        <!-- 【常駐置頂浮動面板】 -->
         <section class="w-full sticky top-[45px] md:top-[60px] z-40 bg-slate-50/95 backdrop-blur-md pt-3 shadow-md -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-t-2xl border-b md:border border-slate-200">
-            <div class="max-w-4xl mx-auto flex flex-row gap-3 items-center justify-center pb-2 w-full">
+            <div class="max-w-4xl mx-auto flex flex-row gap-3 items-stretch justify-center pb-2 w-full px-2">
                 
-                <!-- 【修正】精簡垂直縮放控制盒：與按鈕水平並列，極致慳位 -->
-                <div class="flex flex-col justify-center gap-1.5 bg-white rounded-xl border border-slate-200 p-2 shadow-sm w-[115px] shrink-0 text-center self-stretch justify-around">
+                <!-- 極致慳位、超好按的水平置底按鈕控制盒 -->
+                <div class="flex flex-col justify-between items-center bg-white rounded-2xl border border-slate-200 p-2 shadow-sm w-[112px] shrink-0 text-center">
+                    
+                    <!-- 頂部縮放數值與標籤 -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] font-bold text-slate-500 leading-none">🔍 預覽縮放</span>
+                        <span class="text-[9px] font-bold text-slate-400 leading-none">預覽縮放</span>
                         <span id="zoom-factor" class="text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded-full mt-1">70%</span>
                     </div>
                     
-                    <!-- 【核心修正】垂直 Slider 與極小直立按鈕並排 -->
-                    <div class="flex flex-row items-center justify-center gap-2.5 my-1">
-                        <!-- 垂直滑桿 -->
+                    <!-- 中央垂直推軌 (已加長、加粗，操控感極佳) -->
+                    <div class="flex-1 flex items-center justify-center my-3">
                         <input type="range" id="preview-zoom-slider" min="0.3" max="2.5" step="0.01" value="0.70" class="vertical-slider" oninput="updatePreviewZoom(this.value)">
-                        
-                        <!-- 垂直按鈕堆疊 -->
-                        <div class="flex flex-col gap-1 shrink-0">
-                            <button onclick="adjustPreviewZoom(0.05)" class="p-1 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 rounded text-slate-800 font-bold text-[9px] border border-slate-200/60 leading-none w-10">+</button>
-                            <button onclick="updatePreviewZoom(0.70); document.getElementById('preview-zoom-slider').value = 0.70;" class="p-1 bg-slate-50 hover:bg-slate-100 rounded text-slate-600 font-bold text-[8px] border border-slate-200/60 leading-none w-10">重設</button>
-                            <button onclick="adjustPreviewZoom(-0.05)" class="p-1 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 rounded text-slate-800 font-bold text-[9px] border border-slate-200/60 leading-none w-10">-</button>
-                        </div>
                     </div>
                     
-                    <span class="text-[8px] text-slate-400 leading-none">可上下拉動</span>
+                    <!-- +、重設、- 按鈕變為橫排置底 -->
+                    <div class="flex flex-row gap-1 w-full mt-1 shrink-0 items-center justify-center">
+                        <button onclick="adjustPreviewZoom(-0.05)" class="h-8 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 rounded-lg text-slate-800 font-extrabold text-xs border border-slate-200/60 flex-1 flex items-center justify-center shadow-sm">-</button>
+                        <button onclick="updatePreviewZoom(0.70); document.getElementById('preview-zoom-slider').value = 0.70;" class="h-8 px-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 font-bold text-[8.5px] border border-slate-200/60 flex items-center justify-center shrink-0">重設</button>
+                        <button onclick="adjustPreviewZoom(0.05)" class="h-8 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 rounded-lg text-slate-800 font-extrabold text-xs border border-slate-200/60 flex-1 flex items-center justify-center shadow-sm">+</button>
+                    </div>
                 </div>
 
                 <!-- 標籤可視窗口 (右側) -->
@@ -265,29 +331,37 @@
                                         <h2 id="label-title" class="dynamic-title font-bold text-center tracking-wide" style="font-family: 'Cinzel', serif; color: var(--label-text);">
                                             ORIGINAL FRENCH SABLÉ BRETON
                                         </h2>
-                                        <h3 id="label-category" class="dynamic-category font-semibold uppercase text-center mt-0.5 text-[var(--label-accent)]" style="font-family: 'Montserrat', sans-serif;">
-                                            COOKIES
-                                        </h3>
-                                        <p id="label-subtitle" class="dynamic-subtitle text-center italic mt-0.5" style="color: var(--label-text); font-family: 'Cormorant Garamond', serif;">
-                                            (TRADITIONAL BUTTER BISCUITS)
-                                        </p>
                                         
                                         <div class="dynamic-divider"></div>
                                     </div>
 
-                                    <div class="flex-1 flex flex-col justify-center my-0.5">
-                                        <div class="dynamic-body text-slate-700 font-sans text-center" style="font-family: 'Inter', sans-serif;">
-                                            <strong style="color: var(--label-text); font-weight: 700;">Ingredients:</strong> 
-                                            <span id="label-ingredients">WHEAT Flour (GLUTEN), BUTTER (MILK) (QUID 30%), Icing Sugar, EGG, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</span>
+                                    <!-- 中間：成分與過敏警告 -->
+                                    <div id="middle-container" class="flex-1 flex flex-col justify-center" style="margin-top: calc(var(--label-width) * var(--top-gap)) !important;">
+                                        
+                                        <!-- Ingredients 標題置中，成分靠左貼緊 -->
+                                        <div class="w-full text-center">
+                                            <div class="dynamic-warning-title font-bold text-slate-900 uppercase tracking-wider text-center block mb-0.5" style="white-space: nowrap !important; width: 100% !important; text-align: center !important;">
+                                                INGREDIENTS:
+                                            </div>
+                                            <span id="label-ingredients" class="dynamic-body block text-slate-700 font-sans text-center">WHEAT Flour (GLUTEN), BUTTER (MILK) (QUID 30%), Icing Sugar, EGG, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</span>
                                         </div>
                                         
-                                        <div class="border-t border-b border-dashed border-slate-300 py-1 allergen-spacing-box text-center">
-                                            <span class="dynamic-warning-title font-bold text-slate-900 uppercase block tracking-wider">
+                                        <!-- 過敏原警告框線 -->
+                                        <div class="border-t border-b border-dashed border-slate-300 py-1 text-center" style="margin-top: calc(var(--label-width) * var(--allergen-gap)) !important; margin-bottom: calc(var(--label-width) * var(--netweight-gap)) !important;">
+                                            <!-- ⚠️ 符號與 ALLERGEN WARNING 鎖死同行，並優雅置中 -->
+                                            <div class="dynamic-warning-title font-bold text-slate-900 uppercase tracking-wider text-center block" style="white-space: nowrap !important; width: 100% !important; text-align: center !important;">
                                                 ⚠️ ALLERGEN WARNING:
-                                            </span>
-                                            <span id="label-allergen" class="dynamic-warning-body block text-slate-600 mt-0.5" style="font-family: 'Inter', sans-serif;">
+                                            </div>
+                                            <span id="label-allergen" class="dynamic-warning-body block text-slate-600 mt-0.5 text-center" style="font-family: 'Inter', sans-serif;">
                                                 For allergens, see ingredients listed in BOLD.
                                             </span>
+                                        </div>
+
+                                        <!-- 淨重與貯存條件並排展示欄位 -->
+                                        <div class="text-center py-0.5 flex flex-wrap justify-center items-center gap-x-2 text-slate-700" style="font-family: 'Inter', sans-serif; margin-bottom: calc(var(--label-width) * var(--footer-gap)) !important;">
+                                            <span id="label-storage" class="dynamic-warning-body italic">Store in a cool, dry place.</span>
+                                            <span class="text-slate-400">|</span>
+                                            <span id="label-net-weight" class="dynamic-warning-body font-bold">Net Weight: 150g</span>
                                         </div>
                                     </div>
 
@@ -298,13 +372,16 @@
                                             </div>
                                         </div>
 
-                                        <div class="flex justify-between items-center gap-1">
-                                            <div class="text-left">
+                                        <!-- 【修正 1】完美跟隨你要求的 1:1 分割底部並排排版（BEST BEFORE 在左下，PRODUCED BY 在右下，頂部對齊基線） -->
+                                        <div class="flex justify-between items-start gap-1 w-full text-slate-800">
+                                            <!-- 左下角 Best Before -->
+                                            <div class="text-left shrink-0" style="white-space: nowrap !important;">
                                                 <span class="block dynamic-footer-label uppercase">BEST BEFORE:</span>
                                                 <strong id="label-bb-date" class="dynamic-footer-value">21 / 06 / 2026</strong>
                                             </div>
-                                            <div class="text-right">
-                                                <span class="block dynamic-footer-label uppercase">Produced By:</span>
+                                            <!-- 右下角 Produced By -->
+                                            <div class="text-right shrink-0" style="white-space: nowrap !important;">
+                                                <span class="block dynamic-footer-label uppercase">PRODUCED BY:</span>
                                                 <strong id="label-maker" class="dynamic-footer-value">A Cooking Day (CH3 6ET)</strong>
                                             </div>
                                         </div>
@@ -318,7 +395,7 @@
 
             </div>
 
-            <!-- ↕️ 上下拖拽高度控制條 -->
+            <!-- ↕️ 上下拖曳高度控制條 -->
             <div id="viewport-drag-handle" class="no-print h-6 flex items-center justify-center cursor-row-resize select-none bg-slate-100 hover:bg-slate-200 active:bg-amber-100 border-t border-slate-200 mt-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:rounded-b-2xl transition-all">
                 <div class="flex items-center gap-1.5">
                     <span class="text-[10px] font-bold text-slate-400 tracking-wider">↕️ 按住上下拖曳預覽高度</span>
@@ -330,7 +407,7 @@
         <!-- 下方表單與微調控制面板 -->
         <section class="w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6 flex flex-col gap-5">
             
-            <!-- 比例調校面板 -->
+            <!-- 比例與間距無極調校面板 -->
             <div class="w-full bg-slate-50/50 rounded-xl border border-slate-200 p-4 flex flex-col gap-4">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                     <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -343,20 +420,22 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 全體文字縮放 (改為下限 100%，上限 300%) -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
-                            <span>整體文字縮放 (All Texts)</span>
+                            <span>整體內容文字縮放 (All Body Texts) (除主標題外)</span>
                             <span id="all-scale-num" class="font-bold text-amber-800">100%</span>
                         </div>
-                        <input type="range" id="scale-all" min="0.5" max="1.8" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('all', this.value)">
+                        <input type="range" id="scale-all" min="1.0" max="3.0" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('all', this.value)">
                     </div>
 
+                    <!-- 主標題獨立比例 -->
                     <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
-                            <span>主標題字體大小 (Product Title)</span>
+                            <span>主標題字體大小 (Product Title Only)</span>
                             <span id="title-scale-num" class="font-bold text-amber-800">100%</span>
                         </div>
-                        <input type="range" id="scale-title" min="0.6" max="1.4" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('title', this.value)">
+                        <input type="range" id="scale-title" min="0.5" max="2.0" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('title', this.value)">
                     </div>
 
                     <div id="logo-slider-group" class="hidden">
@@ -375,12 +454,59 @@
                         <input type="range" id="scale-qr" min="0.6" max="1.5" step="0.05" value="1.00" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFontScale('qr', this.value)">
                     </div>
 
-                    <div class="md:col-span-2">
+                    <!-- 標題與內容距離滑桿 -->
+                    <div>
                         <div class="flex justify-between text-[11px] text-slate-600 mb-1">
-                            <span>成分與過敏警告框距離 (Ingredients vs Allergen spacing)</span>
+                            <span>標題與內容距離 (Title vs Content Spacing)</span>
+                            <span id="top-gap-scale-num" class="font-bold text-amber-800">15px</span>
+                        </div>
+                        <input type="range" id="scale-top-gap" min="-0.10" max="0.10" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateTopGap(this.value)">
+                    </div>
+
+                    <!-- 成分與過敏警告框距離 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>成分與過敏警告框距離 (Ingredients vs Allergen Spacing)</span>
                             <span id="gap-scale-num" class="font-bold text-amber-800">15px</span>
                         </div>
-                        <input type="range" id="scale-gap" min="0.00" max="0.07" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateAllergenGap(this.value)">
+                        <input type="range" id="scale-gap" min="0.00" max="0.08" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateAllergenGap(this.value)">
+                    </div>
+
+                    <!-- 警告框與淨重/貯存距離 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>警告框與淨重/貯存距離 (Allergen vs Net Weight Spacing)</span>
+                            <span id="netweight-gap-scale-num" class="font-bold text-amber-800">15px</span>
+                        </div>
+                        <input type="range" id="scale-netweight-gap" min="0.00" max="0.08" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateNetweightGap(this.value)">
+                    </div>
+
+                    <!-- 淨重/貯存與底部欄距離 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                            <span>淨重/貯存與底部欄距離 (Net Weight vs Footer Spacing)</span>
+                            <span id="footer-gap-scale-num" class="font-bold text-amber-800">15px</span>
+                        </div>
+                        <input type="range" id="scale-footer-gap" min="0.00" max="0.08" step="0.005" value="0.015" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateFooterGap(this.value)">
+                    </div>
+                </div>
+
+                <!-- 【新增 2】物理字高計算儀：即時精確換算 1.2mm 食品法律防守底限 -->
+                <div class="mt-2 bg-emerald-50 border border-emerald-150 p-3.5 rounded-xl text-xs text-emerald-950 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                    <div class="flex-1">
+                        <p class="font-extrabold flex items-center gap-1.5 text-[13px] text-emerald-900">
+                            📏 食品法規 1.2mm 實物字高量測儀 (Legal Font Size Monitor)
+                        </p>
+                        <p class="text-slate-600 text-[11px] leading-relaxed mt-1">
+                            此處會根據你目前設定的<b>實物寬高 (mm)</b> 和 <b>All Texts 縮放滑桿</b>，為你即時計算出印在貼紙上時，字體的真實高度（以最細小寫高度與基線寬度為物理換算標準）：
+                        </p>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg border border-emerald-200 shadow-inner flex flex-col justify-center items-center shrink-0 w-full md:w-56 text-center">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">實物印刷內文字體高度</div>
+                        <div class="text-2xl font-black text-emerald-800 my-1"><span id="text-real-mm-height">1.20</span> mm</div>
+                        <div id="text-legal-shield" class="text-[10px] px-2 py-0.5 rounded font-extrabold bg-emerald-100 text-emerald-800">
+                            符合 1.2mm 法律限制
+                        </div>
                     </div>
                 </div>
             </div>
@@ -462,7 +588,7 @@
                 </div>
             </div>
 
-            <!-- 風格選擇 Presets (底色設定寫死為 #FFFFFF) -->
+            <!-- 風格選擇 Presets -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">選擇設計風格 Presets</h2>
                 <div class="grid grid-cols-2 gap-2">
@@ -490,49 +616,54 @@
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">標籤文字與資訊編輯</h2>
                 
                 <div class="space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">主標題 (Title)</label>
-                            <input type="text" id="input-title" value="ORIGINAL FRENCH SABLÉ BRETON" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">副分類 (Category)</label>
-                            <input type="text" id="input-category" value="COOKIES" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
-                        </div>
-                    </div>
-
+                    <!-- 主標題 -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">產品副標題 (Subtitle)</label>
-                        <input type="text" id="input-subtitle" value="(TRADITIONAL BUTTER BISCUITS)" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
+                        <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">主標題 (Title) (支援按 Enter 鍵換行)</label>
+                        <textarea id="input-title" rows="2" class="custom-textarea" oninput="updateLabelText()">ORIGINAL FRENCH SABLÉ BRETON</textarea>
                     </div>
 
+                    <!-- 配方成分 -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label class="block text-[11px] font-semibold text-slate-500">產品配方與成分</label>
+                            <label class="block text-[11px] font-semibold text-slate-500">產品配方與成分 (支援按 Enter 鍵換行)</label>
                             <span class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">過敏原前後請加雙星號 ** 產生粗體</span>
                         </div>
-                        <textarea id="input-ingredients" rows="3" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">**WHEAT** Flour (**GLUTEN**), **BUTTER** (**MILK**) (QUID 30%), Icing Sugar, **EGG**, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</textarea>
+                        <textarea id="input-ingredients" rows="3" class="custom-textarea font-mono" oninput="updateLabelText()">**WHEAT** Flour (**GLUTEN**), **BUTTER** (**MILK**) (QUID 30%), Icing Sugar, **EGG**, Salt, Baking Powder (Raising Agents: Disodium Diphosphate, Sodium Hydrogen Carbonate; Rice Flour).</textarea>
                     </div>
 
+                    <!-- 過敏警告 -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">過敏提示警告 (Allergen Warning)</label>
-                        <input type="text" id="input-allergen-warning" value="For allergens, see ingredients listed in BOLD." class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
+                        <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">過敏提示警告 (Allergen Warning) (支援按 Enter 鍵換行)</label>
+                        <textarea id="input-allergen-warning" rows="2" class="custom-textarea" oninput="updateLabelText()">For allergens, see ingredients listed in BOLD.</textarea>
                     </div>
 
+                    <!-- 淨重與貯存 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">產品淨重 (Net Weight)</label>
+                            <input type="text" id="input-net-weight" value="Net Weight: 150g" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">貯存方式 (Storage Instructions)</label>
+                            <input type="text" id="input-storage" value="Store in a cool, dry place." class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
+                        </div>
+                    </div>
+
+                    <!-- 日期與製造商 -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">最佳食用日期 (Best Before)</label>
                             <input type="text" id="input-bb-date" value="21 / 06 / 2026" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">製造商 (Made by)</label>
-                            <input type="text" id="input-maker" value="A Cooking Day (CH3 6ET)" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500" oninput="updateLabelText()">
+                            <label class="block text-[11px] font-semibold text-slate-500 uppercase mb-1">製造商 (Made by) (支援換行)</label>
+                            <textarea id="input-maker" rows="2" class="custom-textarea" oninput="updateLabelText()">A Cooking Day (CH3 6ET)</textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 自訂字體與邊框色系 (已移除底紙顏色選單) -->
+            <!-- 自訂字體與邊框色系 -->
             <div class="border-t border-slate-100 pt-4">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">自訂色彩與主字體</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -632,9 +763,42 @@
             
             document.getElementById('label-dimension-tag').innerText = `${wMm}x${hMm}mm`;
             
-            // 更新間距數值顯示
-            const currentGap = document.getElementById('scale-gap').value;
-            updateAllergenGap(currentGap);
+            // 1.2mm 像素底線保障
+            const minPrintFontSizePx = 1.2 * (renderW / wMm);
+            root.style.setProperty('--min-print-font', `${minPrintFontSizePx}px`);
+
+            // 動態更新所有間距數值顯示
+            updateAllergenGap(document.getElementById('scale-gap').value);
+            updateTopGap(document.getElementById('scale-top-gap').value);
+            updateNetweightGap(document.getElementById('scale-netweight-gap').value);
+            updateFooterGap(document.getElementById('scale-footer-gap').value);
+            
+            // 【新增】實時物理字體 mm 計算並呈現在量測儀上
+            calculatePhysicalFontMetrics(minPrintFontSizePx, renderW, wMm);
+        }
+
+        // 【新增法規】物理印刷字體高度 mm 實時換算器
+        function calculatePhysicalFontMetrics(minPrintFontSizePx, renderW, wMm) {
+            const bodyScale = parseFloat(document.getElementById('scale-all').value) || 1.0;
+            // 系統實際應用的字體 px = max(minPrintFontSizePx, renderW * 0.024 * bodyScale)
+            const baseBodyPx = renderW * 0.024 * bodyScale;
+            const actualPx = Math.max(minPrintFontSizePx, baseBodyPx);
+            
+            // 換算成實物 mm = actualPx * (wMm / renderW)
+            const physicalMm = actualPx * (wMm / renderW);
+            
+            // 更新 UI 數據
+            document.getElementById('text-real-mm-height').innerText = physicalMm.toFixed(2);
+            
+            const shield = document.getElementById('text-legal-shield');
+            if (physicalMm <= 1.21) {
+                // 如果踩在法律保護線臨界點
+                shield.innerText = "⚖️ 法律底線保障 (1.20mm)";
+                shield.className = "text-[10px] px-2 py-0.5 rounded font-extrabold bg-amber-100 text-amber-800";
+            } else {
+                shield.innerText = `✅ 合規 (${physicalMm.toFixed(2)}mm > 1.2mm)`;
+                shield.className = "text-[10px] px-2 py-0.5 rounded font-extrabold bg-emerald-100 text-emerald-800";
+            }
         }
 
         function setDimensionPreset(w, h) {
@@ -790,14 +954,14 @@
         function captureStateData() {
             return {
                 title: document.getElementById('input-title').value,
-                category: document.getElementById('input-category').value,
-                subtitle: document.getElementById('input-subtitle').value,
                 ingredients: document.getElementById('input-ingredients').value,
                 allergen: document.getElementById('input-allergen-warning').value,
+                netWeight: document.getElementById('input-net-weight').value, 
+                storage: document.getElementById('input-storage').value,       
                 bbDate: document.getElementById('input-bb-date').value,
                 maker: document.getElementById('input-maker').value,
                 fontTitle: document.getElementById('select-font-title').value,
-                bgColor: "#FFFFFF", // 強制寫死純白
+                bgColor: "#FFFFFF", 
                 accentColor: document.getElementById('select-accent-color').value,
                 labelW: document.getElementById('input-label-w').value,
                 labelH: document.getElementById('input-label-h').value,
@@ -806,6 +970,9 @@
                 scaleLogo: document.getElementById('scale-logo').value,
                 scaleQr: document.getElementById('scale-qr').value,
                 scaleGap: document.getElementById('scale-gap').value,
+                scaleTopGap: document.getElementById('scale-top-gap').value, 
+                scaleNetweightGap: document.getElementById('scale-netweight-gap').value, 
+                scaleFooterGap: document.getElementById('scale-footer-gap').value, 
                 customLogo: document.getElementById('label-logo-img').src,
                 qrText: document.getElementById('input-qr').value
             };
@@ -814,10 +981,10 @@
         // 應用讀取的狀態
         function applyStateData(data) {
             document.getElementById('input-title').value = data.title || "";
-            document.getElementById('input-category').value = data.category || "";
-            document.getElementById('input-subtitle').value = data.subtitle || "";
             document.getElementById('input-ingredients').value = data.ingredients || "";
             document.getElementById('input-allergen-warning').value = data.allergen || "";
+            document.getElementById('input-net-weight').value = data.netWeight || "Net Weight: 150g"; 
+            document.getElementById('input-storage').value = data.storage || "Store in a cool, dry place."; 
             document.getElementById('input-bb-date').value = data.bbDate || "";
             document.getElementById('input-maker').value = data.maker || "";
             document.getElementById('select-font-title').value = data.fontTitle || "'Cinzel', serif";
@@ -829,6 +996,9 @@
             document.getElementById('scale-logo').value = data.scaleLogo || 1.00;
             document.getElementById('scale-qr').value = data.scaleQr || 1.00;
             document.getElementById('scale-gap').value = data.scaleGap || 0.015;
+            document.getElementById('scale-top-gap').value = data.scaleTopGap || 0.015; 
+            document.getElementById('scale-netweight-gap').value = data.scaleNetweightGap || 0.015; 
+            document.getElementById('scale-footer-gap').value = data.scaleFooterGap || 0.015; 
 
             if (data.customLogo && data.customLogo.startsWith('data:image')) {
                 document.getElementById('label-logo-img').src = data.customLogo;
@@ -847,6 +1017,9 @@
             updateFontScale('logo', data.scaleLogo || 1.00);
             updateFontScale('qr', data.scaleQr || 1.00);
             updateAllergenGap(data.scaleGap || 0.015);
+            updateTopGap(data.scaleTopGap || 0.015); 
+            updateNetweightGap(data.scaleNetweightGap || 0.015); 
+            updateFooterGap(data.scaleFooterGap || 0.015); 
 
             onDimensionChange();
             updateStyles();
@@ -873,9 +1046,12 @@
                 document.getElementById('scale-qr').value = value;
                 document.getElementById('qr-scale-num').innerText = `${Math.round(value * 100)}%`;
             }
+            
+            // 同步更新字體物理毫米計量
+            onDimensionChange();
         }
 
-        // 成分與過敏原上下間距調整
+        // 獨立段落間距無極換算引擎
         function updateAllergenGap(value) {
             const root = document.documentElement;
             root.style.setProperty('--allergen-gap', value);
@@ -883,6 +1059,33 @@
             
             const rootW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-width')) || 350;
             document.getElementById('gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
+        }
+
+        function updateTopGap(value) {
+            const root = document.documentElement;
+            root.style.setProperty('--top-gap', value);
+            document.getElementById('scale-top-gap').value = value;
+            
+            const rootW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-width')) || 350;
+            document.getElementById('top-gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
+        }
+
+        function updateNetweightGap(value) {
+            const root = document.documentElement;
+            root.style.setProperty('--netweight-gap', value);
+            document.getElementById('scale-netweight-gap').value = value;
+            
+            const rootW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-width')) || 350;
+            document.getElementById('netweight-gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
+        }
+
+        function updateFooterGap(value) {
+            const root = document.documentElement;
+            root.style.setProperty('--footer-gap', value);
+            document.getElementById('scale-footer-gap').value = value;
+            
+            const rootW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-width')) || 350;
+            document.getElementById('footer-gap-scale-num').innerText = `${Math.round(rootW * value)} px`;
         }
 
         // 調整預覽畫面縮放
@@ -944,7 +1147,7 @@
             updateQRCode("");
         }
 
-        // ================= 🎯 【印刷安全】最高級別 8 倍超清無損 PNG 導出 =================
+        // ================= 🎯 【印刷安全】最高級別 8 倍超清無損 PNG 導出修正（徹底免除Viewport拉伸剪裁） =================
         function exportLabelAsPNG() {
             const label = document.getElementById('printable-label');
             const pivot = document.getElementById('label-scale-pivot');
@@ -952,9 +1155,21 @@
             const currentZoom = parseFloat(document.getElementById('preview-zoom-slider').value) || 0.70;
             const originalBoxShadow = label.style.boxShadow;
 
+            // 1. 取得 viewport 的元素
+            const viewport = document.getElementById('label-viewport');
+            
+            // 2. 暫時將 viewport 的限制高度與隱藏屬性解除，讓 html2canvas 渲染完整的 label 高度，徹底防止下方被裁切！
+            const originalViewportStyle = viewport.style.cssText;
+            viewport.style.height = 'auto';
+            viewport.style.minHeight = 'none';
+            viewport.style.maxHeight = 'none';
+            viewport.style.overflow = 'visible';
+
+            // 3. 移除縮放與陰影，獲得 100% 精準原生畫布
             pivot.style.transform = 'none';
             label.style.boxShadow = 'none';
 
+            // 4. 延遲 100毫秒確保 DOM 排版完全展開加載，然後使用 scale: 8 超清重繪
             setTimeout(() => {
                 html2canvas(label, {
                     scale: 8, // 超高清 8 倍渲染，完美匯出極致高清大圖
@@ -962,8 +1177,10 @@
                     backgroundColor: null, 
                     logging: false
                 }).then(canvas => {
+                    // 5. 下載完成後立刻將網頁預覽樣式還原
                     pivot.style.transform = `scale(${currentZoom})`;
                     label.style.boxShadow = originalBoxShadow;
+                    viewport.style.cssText = originalViewportStyle;
 
                     const link = document.createElement('a');
                     link.download = `Sable_Breton_Label_UltraHD.png`;
@@ -973,27 +1190,34 @@
                     console.error("PNG 匯出發生故障: ", err);
                     pivot.style.transform = `scale(${currentZoom})`;
                     label.style.boxShadow = originalBoxShadow;
+                    viewport.style.cssText = originalViewportStyle;
                 });
-            }, 50);
+            }, 100);
         }
 
         // 經典字型與配方更新
         function updateLabelText() {
             const title = document.getElementById('input-title').value;
-            const category = document.getElementById('input-category').value;
-            const subtitle = document.getElementById('input-subtitle').value;
             const rawIngredients = document.getElementById('input-ingredients').value;
             const allergenWarning = document.getElementById('input-allergen-warning').value;
+            const netWeight = document.getElementById('input-net-weight').value; 
+            const storage = document.getElementById('input-storage').value;       
             const bbDate = document.getElementById('input-bb-date').value;
             const maker = document.getElementById('input-maker').value;
 
-            const processedIngredients = rawIngredients.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--label-text); font-weight: 800;">$1</strong>');
+            // 清理前後空白與換行，完美保障文字與 Ingredients 完全緊貼
+            const cleanTitle = title.trim();
+            const cleanIngredients = rawIngredients.trim();
+            const cleanWarning = allergenWarning.trim();
 
-            document.getElementById('label-title').innerHTML = title;
-            document.getElementById('label-category').innerHTML = category;
-            document.getElementById('label-subtitle').innerHTML = subtitle;
+            const processedIngredients = cleanIngredients.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--label-text); font-weight: 800;">$1</strong>');
+
+            document.getElementById('label-title').innerHTML = cleanTitle;
             document.getElementById('label-ingredients').innerHTML = processedIngredients;
-            document.getElementById('label-allergen').innerHTML = allergenWarning;
+            document.getElementById('label-allergen').innerHTML = cleanWarning;
+            
+            document.getElementById('label-net-weight').innerHTML = netWeight; 
+            document.getElementById('label-storage').innerHTML = storage;       
             
             document.getElementById('label-bb-date').innerHTML = bbDate;
             document.getElementById('label-maker').innerHTML = maker;
@@ -1048,6 +1272,43 @@
             document.getElementById('label-title').style.fontFamily = preset.titleFont;
             updateLabelText();
         }
+
+        window.onbeforeprint = function() {
+            const wMm = parseFloat(document.getElementById('input-label-w').value) || 50;
+            const hMm = parseFloat(document.getElementById('input-label-h').value) || 60;
+            
+            const printStyle = document.getElementById('print-dynamic-style') || document.createElement('style');
+            printStyle.id = 'print-dynamic-style';
+            printStyle.innerHTML = `
+                @media print {
+                    @page {
+                        size: ${wMm}mm ${hMm}mm !important;
+                        margin: 0 !important;
+                    }
+                    html, body, .print-wrapper, #print-label-rendered {
+                        width: ${wMm}mm !important;
+                        height: ${hMm}mm !important;
+                    }
+                }
+            `;
+            document.head.appendChild(printStyle);
+            
+            const originalLabel = document.getElementById('printable-label');
+            const printContent = originalLabel.cloneNode(true);
+            printContent.id = "print-label-rendered";
+            
+            const currentW = originalLabel.offsetWidth || 350;
+            printContent.style.width = `${currentW}px`;
+            printContent.style.height = `${(hMm / wMm) * currentW}px`;
+            printContent.style.transform = `scale(calc(${wMm}mm / ${currentW}px))`;
+            printContent.style.transformOrigin = "top left";
+            printContent.style.boxShadow = "none";
+            printContent.style.margin = "0";
+
+            const wrapper = document.getElementById('print-area');
+            wrapper.innerHTML = '';
+            wrapper.appendChild(printContent);
+        };
 
         window.addEventListener('DOMContentLoaded', () => {
             // 監聽 Logo 上傳
